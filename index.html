@@ -375,20 +375,15 @@
     // Cabin (Back panel)
     rect(30, -35, 80, 40, 30, 30, 0, 0); 
     
-    // -- DRAW CHARACTER INSIDE WINDOW --
+    // -- DRAW CHARACTER HEAD & TORSO (In Window) --
     push();
-    // Position character so head is in window
-    translate(55, -5); 
+    translate(55, -10); // Shifted up slightly to clear door sill
     strokeWeight(3);
     stroke(OUTLINE);
     
     // Torso (cut off by door)
-    line(0, 0, 0, 10); 
+    line(0, 0, 0, 15); 
     
-    // Arm Holding Gun sticking out of window
-    line(0, 5, 45, 10);
-    fill(SKIN_BROWN); circle(45, 10, 12); // Hand
-
     // Head (Simpsons shape, Brown skin)
     fill(SKIN_BROWN);
     beginShape();
@@ -413,22 +408,8 @@
     
     // Angry Mouth
     line(2, 8, 10, 5);
-
-    // Pistol
-    push();
-    fill('#222'); translate(48, 8); rotate(radians(-10));
-    strokeWeight(2);
-    // Gun Barrel & Handle
-    beginShape();
-    vertex(0,0); vertex(20,0); vertex(20,-6); vertex(3,-6); 
-    vertex(3,-14); vertex(-4,-14); vertex(-4, 0); 
-    endShape(CLOSE);
-    // Detail
-    strokeWeight(1); stroke(100); line(5, -3, 15, -3);
     pop();
-    
-    pop();
-    // -- END CHARACTER --
+    // -- END INNER CHARACTER --
 
     // Body (Covers the character's lower half)
     strokeWeight(4); stroke(OUTLINE); fill(colorCode);
@@ -473,7 +454,30 @@
     circle(35, 50, 15);
     circle(125, 50, 15);
     fill(0); circle(35, 50, 4); circle(125, 50, 4);
+    // --- DRAW CHARACTER ARM & GUN OVER WINDOW SILL ---
+    push();
+    translate(55, -10); // Match character shift
+    strokeWeight(3); stroke(OUTLINE);
     
+    // Arm Holding Gun sticking out of window
+    line(0, 10, 45, 12);
+    fill(SKIN_BROWN); circle(45, 12, 12); // Hand
+
+    // Pistol
+    push();
+    fill('#222'); translate(48, 10); rotate(radians(-10));
+    strokeWeight(2);
+    // Gun Barrel & Handle
+    beginShape();
+    vertex(0,0); vertex(20,0); vertex(20,-6); vertex(3,-6); 
+    vertex(3,-14); vertex(-4,-14); vertex(-4, 0); 
+    endShape(CLOSE);
+    // Detail
+    strokeWeight(1); stroke(100); line(5, -3, 15, -3);
+    pop();
+    
+    pop();
+
     pop();
   }
 
@@ -481,10 +485,10 @@
     // Generate bullet when firing
     let roadY = height * 0.66;
     if (isFiring && frameCount % 3 === 0) {
-      // Left car shoots right (gun tip is at x + 121, y + 34)
-      bullets.push({x: width * 0.1 + 121, y: roadY + 34 + carBounce, speed: 25, dir: 1});
-      // Right car shoots left (gun tip is at x + 39, y + 54)
-      bullets.push({x: width * 0.6 + 39, y: roadY + 54 + carBounce, speed: -25, dir: -1});
+      // Left car shoots right (gun tip is at x + 123, y + 37 absolute)
+      bullets.push({x: width * 0.1 + 123, y: roadY + 37 + carBounce, speed: 25, dir: 1});
+      // Right car shoots left (gun tip is at x + 37, y + 57 absolute)
+      bullets.push({x: width * 0.6 + 37, y: roadY + 57 + carBounce, speed: -25, dir: -1});
     }
 
     strokeWeight(3);
@@ -511,16 +515,16 @@
     stroke(OUTLINE);
     fill('#FFFF99');
 
-    // Flash for Left Char (gun tip is at x + 121, y + 34)
+    // Flash for Left Char (gun tip is at x + 123, y + 37)
     push();
-    translate(width * 0.1 + 121, roadY + 34 + carBounce);
+    translate(width * 0.1 + 123, roadY + 37 + carBounce);
     rotate(radians(-10)); // Match gun angle
     drawStar(0, 0, 8, 20, 5); 
     pop();
 
-    // Flash for Right Char (gun tip is at x + 39, y + 54)
+    // Flash for Right Char (gun tip is at x + 37, y + 57)
     push();
-    translate(width * 0.6 + 39, roadY + 54 + carBounce);
+    translate(width * 0.6 + 37, roadY + 57 + carBounce);
     rotate(radians(10)); // Mirrored gun angle
     drawStar(0, 0, 8, 20, 5);
     pop();
