@@ -62,12 +62,12 @@
     amplitude = new p5.Amplitude();
     
     // Create initial clouds
-    for(let i=0; i<6; i++) {
+    for(let i=0; i<8; i++) {
       clouds.push({
         x: random(width),
         y: random(height * 0.05, height * 0.4),
-        speed: random(0.5, 1.5),
-        scale: random(0.5, 1.2)
+        speed: random(0.2, 1.0),
+        scale: random(0.6, 1.5)
       });
     }
 
@@ -90,8 +90,9 @@
 
 
   function draw() {
-    background(SIMPSONS_BLUE);
-
+    // Gradient Sky
+    setGradient(0, 0, width, height*0.66, color('#4FA6FF'), color('#87CEEB'));
+    
     // Ensure audio plays if user interacts anywhere in case autoplay blocked
     if (song && song.isLoaded() && !song.isPlaying() && getAudioContext().state === 'running') {
          song.loop();
@@ -190,6 +191,11 @@
         push();
         translate(c.x, c.y);
         scale(c.scale);
+        
+        // Shadow offset
+        noStroke(); fill(0, 30);
+        ellipse(4, 4, 100, 35); ellipse(-11, -11, 50, 50); ellipse(24, -6, 40, 40);
+
         strokeWeight(3);
         stroke(OUTLINE);
         fill(255);
@@ -198,6 +204,11 @@
         ellipse(0, 0, 100, 35);
         ellipse(-15, -15, 50, 50);
         ellipse(20, -10, 40, 40);
+        
+        // Minor inner detail lines
+        strokeWeight(1.5); stroke(200); noFill();
+        arc(-15, -15, 30, 30, PI, TWO_PI-0.5);
+        
         pop();
         
         c.x += c.speed;
@@ -309,58 +320,70 @@
   function drawCars() {
     let roadY = height * 0.66;
     
-    // Left Car (Purple)
-    push();
-    translate(width * 0.1, roadY + 40 + carBounce);
+    // Purple Sedan
+    drawDetailedCar(width * 0.1, roadY + 40 + carBounce, '#9b59b6', false);
     
+    // Green Sedan (Mirrored visually)
+    drawDetailedCar(width * 0.6, roadY + 60 + carBounce, '#27ae60', true);
+  }
+
+  function drawDetailedCar(x, y, colorCode, isMirrored) {
+    push();
+    translate(x, y);
+    if (isMirrored) {
+       translate(160, 0); 
+       scale(-1, 1);
+    }
+    
+    // Shadow under car
+    noStroke(); fill(0, 80);
+    ellipse(80, 60, 160, 20);
+
     strokeWeight(4); stroke(OUTLINE);
-    fill('#9b59b6');
+    fill(colorCode);
+    
     // Cabin
     rect(30, -35, 80, 40, 30, 30, 0, 0); 
     // Body
     rect(0, 0, 160, 50, 15, 30, 10, 10);
     
-    // Window
-    fill('#87CEEB');
+    // Door Lines & Details
+    strokeWeight(2);
+    line(70, 0, 70, 40); // Front door seam
+    line(110, 0, 110, 40); // Back door seam
+    fill(0); circle(60, 15, 6); circle(100, 15, 6); // Door handles
+
+    // Windows & Reflection
+    strokeWeight(4); fill('#87CEEB');
     rect(40, -28, 60, 30, 15, 15, 0, 0);
-
-    // Wheels
-    fill(0);
-    circle(35, 50, 35); // back wheel
-    circle(125, 50, 35); // front wheel
+    line(70, -28, 70, 2); // Split
+    // Glass reflection
+    strokeWeight(2); stroke(255, 150);
+    line(45, -20, 55, -20); line(48, -15, 52, -15);
+    line(75, -20, 85, -20);
     
-    fill(180); // Hubcaps
-    circle(35, 50, 15);
-    circle(125, 50, 15);
-    pop();
-
-    // Right Car (Green)
-    push();
-    translate(width * 0.6, roadY + 60 + carBounce);
-    
+    // Bumpers / Headlights / Taillights
     strokeWeight(4); stroke(OUTLINE);
-    fill('#27ae60');
-    // Cabin
-    rect(40, -35, 80, 40, 30, 30, 0, 0);
-    // Body (Mirrored visually in HTML, here we just draw it backwards or use scale)
-    // Actually using scale(-1, 1) to mirror it completely
-    translate(160, 0); 
-    scale(-1, 1);
+    fill('#CCCCCC');
+    rect(-5, 30, 15, 15, 5); // Rear Bumper
+    rect(150, 30, 15, 15, 5); // Front Bumper
     
-    rect(0, 0, 160, 50, 15, 30, 10, 10);
-    
-    // Window
-    fill('#87CEEB');
-    rect(40, -28, 60, 30, 15, 15, 0, 0);
+    fill('#FF3333'); // Taillight
+    rect(0, 10, 10, 15, 2);
+    fill('#FFFF99'); // Headlight
+    rect(145, 10, 15, 15, 5);
 
     // Wheels
     fill(0);
-    circle(35, 50, 35);
-    circle(125, 50, 35);
+    circle(35, 50, 35); // back
+    circle(125, 50, 35); // front
     
-    fill(180); // Hubcaps
+    // Hubcaps & Details
+    fill(180);
     circle(35, 50, 15);
     circle(125, 50, 15);
+    fill(0); circle(35, 50, 4); circle(125, 50, 4);
+    
     pop();
   }
 
