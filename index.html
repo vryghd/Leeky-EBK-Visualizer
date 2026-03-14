@@ -1,342 +1,504 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EBK - Leeky's Chase</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Boogaloo&display=swap');
-
-:root {
-  --yellow: #FED90F;
-  --blue: #1A8FD1;
-  --orange: #F77F00;
-  --outline: #000;
-  --sky-blue: #4FA6FF;
-  --grass: #3A7A3A;
-  --skin-tone: #FED90F; /* Classic Simpson Yellow */
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  background: #111;
-  font-family: 'Boogaloo', cursive;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-#insta-frame {
-  width: 432px;
-  height: 540px;
-  background: var(--sky-blue);
-  position: relative;
-  overflow: hidden;
-  border: 4px solid #000;
-  box-shadow: 0 0 50px rgba(0,0,0,0.8);
-}
-
-/* SCREEN SHAKE CLASS */
-.shake {
-  animation: shakeEffect 0.15s cubic-bezier(.36,.07,.19,.97) both;
-}
-@keyframes shakeEffect {
-  10%, 90% { transform: translate3d(-2px, -2px, 0); }
-  20%, 80% { transform: translate3d(4px, 4px, 0); }
-  30%, 50%, 70% { transform: translate3d(-6px, -6px, 0); }
-  40%, 60% { transform: translate3d(6px, 6px, 0); }
-}
-
-/* SIMPSONS SKY */
-.sky {
-  position: absolute; inset: 0; height: 60%;
-  background: linear-gradient(to bottom, #4FA6FF 0%, #87CEEB 100%);
-  z-index: 1;
-}
-.cloud {
-  position: absolute; background: white; border-radius: 100px;
-  filter: drop-shadow(4px 4px 0 rgba(0,0,0,0.05));
-  animation: drift linear infinite;
-}
-.cloud::before, .cloud::after { content: ''; position: absolute; background: white; border-radius: 50%; }
-.cloud.c1 { width: 100px; height: 35px; top: 10%; left: -150px; animation-duration: 30s; }
-.cloud.c1::before { width: 50px; height: 50px; top: -25px; left: 15px; }
-.cloud.c1::after { width: 40px; height: 40px; top: -15px; left: 50px; }
-@keyframes drift { from { transform: translateX(-200px); } to { transform: translateX(650px); } }
-
-/* BUILDINGS (Moving Background) */
-.buildings-container {
-  position: absolute; bottom: 160px; width: 200%; height: 180px;
-  display: flex; align-items: flex-end; z-index: 5;
-  animation: backgroundMove 10s linear infinite;
-}
-@keyframes backgroundMove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-/* KWIK-E-MART STYLE */
-.kwike { 
-  width: 190px; height: 130px; 
-  background: #EEDC9A; 
-  border-top: 25px solid #2ECC71; /* Green roof */
-  border-bottom: 20px solid #D35400; /* Orange base */
-}
-.kwike::before { 
-  content: ''; position: absolute;
-  top: 15px; left: 10px; width: 160px; height: 50px;
-  background: #87CEEB; border: 4px solid var(--outline);
-  background-image: linear-gradient(90deg, transparent 48%, var(--outline) 48%, var(--outline) 52%, transparent 52%);
-  background-size: 53px 100%;
-}
-.kwike-sign { 
-  position: absolute; top: -45px; left: 50%; transform: translateX(-50%);
-  background: white; border: 4px solid #D35400; padding: 2px 10px;
-  border-radius: 8px; font-family: 'Permanent Marker', cursive; font-size: 1.1rem; 
-  color: #2ECC71; white-space: nowrap; box-shadow: 2px 2px 0 var(--outline);
-}
-.kwike-sign::before {
-  content: ''; position: absolute;
-  top: 28px; left: 50%; transform: translateX(-50%);
-  width: 8px; height: 18px; background: #999; border: 3px solid var(--outline); 
-  z-index: -1;
-}
-
-/* LARD LAD STYLE */
-.donuts { 
-  width: 160px; height: 130px; 
-  background: #F3E5AB; 
-  border-top: 10px solid #E56B55; 
-  margin-right: 120px;
-}
-.donuts::before {
-  content: "LARD LAD"; position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
-  background: white; border: 3px solid var(--outline); padding: 2px 8px;
-  font-family: 'Permanent Marker', cursive; font-size: 0.9rem; color: #E56B55; white-space: nowrap;
-  border-radius: 10px;
-}
-.donuts-sign { 
-  position: absolute; top: -85px; left: 50%; transform: translateX(-50%);
-  width: 50px; height: 50px; border: 20px solid #F472B6; border-radius: 50%;
-  box-shadow: 0 0 0 5px var(--outline), inset 0 0 0 5px var(--outline);
-}
-.donuts-sign::after {
-  content: ''; position: absolute;
-  width: 10px; height: 40px; background: #999; border: 4px solid var(--outline);
-  bottom: -60px; left: 50%; transform: translateX(-50%);
-  z-index: -1;
-}
-.donuts-sprinkles {
-  position: absolute; top: -85px; left: 50%; transform: translateX(-50%);
-  width: 90px; height: 90px; border-radius: 50%; pointer-events: none; z-index: 5;
-  background-image: radial-gradient(circle at 20% 20%, yellow 3px, transparent 4px),
-                    radial-gradient(circle at 80% 30%, cyan 3px, transparent 4px),
-                    radial-gradient(circle at 40% 80%, white 3px, transparent 4px),
-                    radial-gradient(circle at 80% 80%, lightgreen 3px, transparent 4px),
-                    radial-gradient(circle at 20% 70%, yellow 3px, transparent 4px);
-}
-
-/* ROAD */
-.road {
-  position: absolute; bottom: 0; width: 100%; height: 160px;
-  background: #333; border-top: 5px solid var(--outline); z-index: 10;
-}
-.road-lines {
-  position: absolute; top: 50%; width: 100%; height: 8px;
-  background: repeating-linear-gradient(90deg, var(--yellow) 0, var(--yellow) 40px, transparent 40px, transparent 80px);
-  transform: translateY(-50%);
-  animation: roadScroll 0.3s linear infinite;
-}
-@keyframes roadScroll { from { background-position: 0 0; } to { background-position: -80px 0; } }
-
-/* CARS */
-.car {
-  position: absolute; bottom: 40px; width: 160px; height: 70px;
-  border: 4px solid var(--outline); border-radius: 15px 30px 10px 10px;
-  z-index: 20; animation: bounce 0.2s infinite;
-}
-@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
-
-.car.purple { left: 20px; background: #9b59b6; }
-.car.green { right: 20px; background: #27ae60; transform: scaleX(-1); }
-
-.car::before { 
-  content: ''; position: absolute; top: -35px; left: 30px; width: 80px; height: 40px;
-  background: inherit; border: 4px solid var(--outline); border-radius: 30px 30px 0 0;
-}
-
-.window {
-  position: absolute; top: -28px; left: 40px; width: 60px; height: 30px;
-  background: #87CEEB; border: 3px solid var(--outline); border-radius: 15px 15px 0 0;
-  overflow: hidden;
-}
-
-/* CHARACTERS */
-.character {
-  position: absolute; top: 5px; left: 10px; width: 40px; height: 40px;
-}
-.head {
-  width: 30px; height: 35px; background: var(--skin-tone);
-  border: 3px solid var(--outline); border-radius: 10px; position: relative;
-}
-.eye { width: 10px; height: 10px; background: #fff; border: 2px solid #000; border-radius: 50%; position: absolute; top: 8px; }
-.eye.l { left: 4px; } .eye.r { right: 4px; }
-.eye::after { content: ''; position: absolute; width: 3px; height: 3px; background: #000; border-radius: 50%; top: 2px; left: 2px; }
-
-/* ARMS AND GUNS */
-.arm {
-  position: absolute; top: 0px; left: 80px; 
-  width: 35px; height: 14px; background: var(--skin-tone);
-  border: 3px solid var(--outline); border-radius: 7px;
-  z-index: 10; transform: rotate(-5deg);
-}
-.gun {
-  position: absolute; top: -4px; left: 25px;
-  width: 25px; height: 14px; background: #333;
-  border: 3px solid var(--outline); border-radius: 2px;
-}
-.gun::after {
-  content: ''; position: absolute;
-  top: 10px; left: 5px; width: 8px; height: 12px;
-  background: #333; border: 3px solid var(--outline); border-top: none;
-}
-
-/* MUZZLE FLASH */
-.muzzle-flash {
-  position: absolute; width: 40px; height: 40px; background: var(--yellow);
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-  border: 2px solid var(--outline); opacity: 0; z-index: 100;
-  top: -20px; left: 135px;
-}
-
-/* UI */
-.ebk-logo {
-  position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
-  font-family: 'Permanent Marker', cursive; font-size: 5rem; color: var(--yellow);
-  -webkit-text-stroke: 3px var(--outline); text-shadow: 8px 8px 0 var(--orange);
-  z-index: 100; letter-spacing: 10px; transition: transform 0.1s;
-}
-
-/* SCANLINES */
-#insta-frame::after {
-  content: ''; position: absolute; inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 3px);
-  pointer-events: none; z-index: 200;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>EBK - Simpsons Visualizer (p5.js)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Boogaloo&display=swap');
+    body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #p5-container {
+      box-shadow: 0 0 50px rgba(0,0,0,0.8);
+      /* Use a pure CSS border here or inside the canvas later */
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
 </head>
-<body onclick="startAudio()">
-
-<div id="insta-frame">
-  <div class="sky"><div class="cloud c1"></div></div>
-  
-  <div class="ebk-logo" id="logo">EBK</div>
-
-  <div class="buildings-container">
-    <div class="building kwike"><div class="kwike-sign">KWIK-E-MART</div></div>
-    <div class="building donuts"><div class="donuts-sign"></div><div class="donuts-sprinkles"></div></div>
-    <div class="building kwike"><div class="kwike-sign">KWIK-E-MART</div></div>
-    <div class="building donuts"><div class="donuts-sign"></div><div class="donuts-sprinkles"></div></div>
-  </div>
-
-  <div class="road"><div class="road-lines"></div></div>
-
-  <!-- Left Car (Artist) -->
-  <div class="car purple">
-    <div class="window">
-      <div class="character">
-        <div class="head">
-          <div class="eye l"></div>
-          <div class="eye r"></div>
-        </div>
-      </div>
-    </div>
-    <div class="arm"><div class="gun"></div></div>
-    <div id="flash-left" class="muzzle-flash"></div>
-  </div>
-
-  <!-- Right Car (Enemy) -->
-  <div class="car green">
-    <div class="window">
-      <div class="character">
-        <div class="head">
-          <div class="eye l"></div>
-          <div class="eye r"></div>
-        </div>
-      </div>
-    </div>
-    <div class="arm" style="transform: rotate(185deg); left: 70px;"><div class="gun" style="transform: scaleY(-1);"></div></div>
-    <div id="flash-right" class="muzzle-flash" style="transform: scaleX(-1); left: 10px;"></div>
-  </div>
-</div>
-
+<body>
+<div id="p5-container"></div>
 <script>
-  let audioCtx, analyser, source, audioBuffer, isPlaying = false, animFrame;
-  const frame = document.getElementById('insta-frame');
-  const logo = document.getElementById('logo');
-  const fLeft = document.getElementById('flash-left');
-  const fRight = document.getElementById('flash-right');
+  // -- ASSETS & SOUND --
+  let song;
+  let amplitude;
+  let started = false;
+  
+  // -- COLORS --
+  const SIMPSONS_BLUE = '#7092BE';
+  const SKIN_YELLOW = '#FED90F';
+  const OUTLINE = '#000000';
+  
+  // -- ANIMATION STATE --
+  let clouds = [];
+  let roadOffset = 0;
+  let bldgOffset = 0; // Buildings scroll slower than road
+  let carBounce = 0;
+  
+  // -- AUDIO SYNC --
+  let isFiring = false;
+  let flashTimer = 0;
 
-  async function init() {
-    try {
-      const res = await fetch('Leeky EBK.m4a');
-      const buf = await res.arrayBuffer();
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      audioBuffer = await audioCtx.decodeAudioData(buf);
-      startAudio();
-    } catch (e) { console.log("Init error", e); }
+  function preload() {
+    // Attempt to load the audio file. Make sure Leeky EBK.m4a exists relative to index.html
+    song = loadSound('Leeky EBK.m4a');
   }
 
-  function startAudio() {
-    if (isPlaying || !audioBuffer) return;
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 64;
-    source = audioCtx.createBufferSource();
-    source.buffer = audioBuffer;
-    source.connect(analyser);
-    analyser.connect(audioCtx.destination);
-    source.start();
-    isPlaying = true;
-    animate();
-  }
-
-  const data = new Uint8Array(32);
-  let lastShoot = 0;
-
-  function animate() {
-    animFrame = requestAnimationFrame(animate);
-    analyser.getByteFrequencyData(data);
+  function setup() {
+    let canvasWidth = (windowHeight * (9/16)) * 0.95; 
+    let canvasHeight = windowHeight * 0.95;
     
-    let bass = 0;
-    for (let i = 0; i < 4; i++) bass += data[i];
-    const bassLevel = bass / (4 * 255);
+    // Fallback if calculated height is too small
+    if (canvasHeight < 540) {
+      canvasHeight = 540;
+      canvasWidth = 432;
+    }
 
-    // Pulse Logo
-    logo.style.transform = `translateX(-50%) scale(${1 + bassLevel * 0.3})`;
-
-    // Trigger Shoot & Shake
-    if (bassLevel > 0.8 && Date.now() - lastShoot > 120) {
-        triggerAction();
-        lastShoot = Date.now();
+    let cnv = createCanvas(canvasWidth, canvasHeight);
+    cnv.parent('p5-container');
+    
+    // Initialize Amplitude Analyzer
+    amplitude = new p5.Amplitude();
+    
+    // Create initial clouds
+    for(let i=0; i<6; i++) {
+      clouds.push({
+        x: random(width),
+        y: random(height * 0.05, height * 0.4),
+        speed: random(0.5, 1.5),
+        scale: random(0.5, 1.2)
+      });
     }
   }
 
-  function triggerAction() {
-    // Screen Shake
-    frame.classList.remove('shake');
-    void frame.offsetWidth; // Force reflow
-    frame.classList.add('shake');
+  function draw() {
+    background(SIMPSONS_BLUE);
+    
+    if (!started) {
+      drawStartScreen();
+      return;
+    }
 
-    // Random Muzzle Flash
-    const flash = Math.random() > 0.5 ? fLeft : fRight;
-    flash.style.opacity = '1';
-    flash.style.transform = `scale(${1.2 + Math.random()})`;
-    setTimeout(() => { flash.style.opacity = '0'; }, 50);
+    // Read audio level
+    let level = amplitude.getLevel();
+    
+    // Beat detection logic (simple threshold)
+    if (level > 0.3 && flashTimer <= 0) {
+      isFiring = true;
+      flashTimer = 5; // Frames to show flash
+    }
+    
+    if (flashTimer > 0) {
+      flashTimer--;
+    } else {
+      isFiring = false;
+    }
+
+    // UPDATE VARIABLES
+    roadOffset += 10; 
+    if (roadOffset > 80) roadOffset = 0; // Loop road lines
+    
+    bldgOffset += 3; // Parallax building scroll
+    if (bldgOffset >= 600) bldgOffset = 0; // Reset based on combined width
+
+    // Car bounce based on frameCount
+    carBounce = sin(frameCount * 0.5) * 3;
+    
+    // Global Shakes when firing
+    push();
+    if (isFiring) {
+        let shakeAmt = map(level, 0.3, 1.0, 2, 8);
+        translate(random(-shakeAmt, shakeAmt), random(-shakeAmt, shakeAmt));
+    }
+
+    // DRAW SCENE LAYERS
+    drawClouds();
+    
+    push();
+    translate(-bldgOffset, 0); // pan buildings left
+    drawBackgroundScene();
+    translate(600, 0); // draw duplicate to stitch edge
+    drawBackgroundScene();
+    pop();
+
+    drawRoad();
+    
+    drawCharacters();
+    drawCars();
+    
+    if (isFiring) {
+      drawMuzzleFlashes();
+    }
+    
+    pop(); // End Global Shake
+    
+    drawText(level);
+    drawCRT();
+    
+    // Border
+    strokeWeight(8);
+    stroke(0);
+    noFill();
+    rect(0, 0, width, height);
   }
 
-  window.addEventListener('load', init);
-</script>
+  // --- DRAWING FUNCTIONS ---
 
+  function drawStartScreen() {
+    fill(0, 150);
+    rect(0, 0, width, height);
+    
+    fill(255);
+    noStroke();
+    textAlign(CENTER, CENTER);
+    textFont('Boogaloo', 36);
+    text("CLICK TO START", width/2, height/2);
+  }
+
+  function mousePressed() {
+    if (!started && getAudioContext().state !== 'running') {
+      getAudioContext().resume().then(() => {
+        song.loop();
+        started = true;
+      });
+    } else if (!started && song.isLoaded()) {
+      song.loop();
+      started = true;
+    }
+  }
+
+  function drawClouds() {
+    for (let i = 0; i < clouds.length; i++) {
+        let c = clouds[i];
+        
+        push();
+        translate(c.x, c.y);
+        scale(c.scale);
+        strokeWeight(3);
+        stroke(OUTLINE);
+        fill(255);
+        
+        // Base cloud ellipse
+        ellipse(0, 0, 100, 35);
+        ellipse(-15, -15, 50, 50);
+        ellipse(20, -10, 40, 40);
+        pop();
+        
+        c.x += c.speed;
+        if (c.x > width + 100) {
+            c.x = -100;
+            c.y = random(height * 0.05, height * 0.4);
+        }
+    }
+  }
+
+  function drawBackgroundScene() {
+    let roadY = height * 0.66; // Buildings sit exactly here
+    
+    // Leeky's Tavern
+    let tX = 20;
+    push();
+    translate(tX, roadY - 130);
+    fill('#E48257'); // Building color
+    strokeWeight(4);
+    stroke(OUTLINE);
+    rect(0, 0, 180, 130);
+    
+    // Tavern Roof (Green)
+    fill('#4A7A59');
+    rect(-5, -15, 190, 15);
+    
+    // Tavern Windows
+    fill('#87CEEB');
+    rect(20, 30, 50, 50);
+    strokeWeight(3);
+    line(45, 30, 45, 80); // Vert pane
+    line(20, 55, 70, 55); // Horiz pane
+    
+    // Tavern Sign
+    push();
+    translate(120, -10);
+    rotate(radians(-5));
+    fill('#50312F'); // sign bg
+    rect(0, 0, 70, 40);
+    noStroke();
+    fill('#F2C14E');
+    textFont('Permanent Marker', 11);
+    textAlign(CENTER, CENTER);
+    text("LEEKY'S", 35, 12);
+    text("TAVERN", 35, 26);
+    pop();
+    pop();
+
+    // Kwik-E-Mart
+    let kX = 280;
+    push();
+    translate(kX, roadY - 130);
+    fill('#EEDC9A'); 
+    strokeWeight(4);
+    stroke(OUTLINE);
+    rect(0, 0, 240, 130);
+    
+    // Roof/Base trims
+    fill('#2ECC71'); rect(-5, -25, 250, 25); // Green Roof
+    fill('#D35400'); rect(-5, 110, 250, 20); // Orange base
+
+    // Big front glass
+    fill('#87CEEB');
+    rect(15, 15, 210, 50);
+    line(70, 15, 70, 65);
+    line(120, 15, 120, 65);
+    line(170, 15, 170, 65);
+
+    // Kwik E Mart Logo
+    fill(255);
+    stroke('#D35400'); // Red/Orange outer border
+    strokeWeight(4);
+    rect(50, -65, 140, 30, 8); // x, y, w, h, radius
+    
+    // Support pole
+    fill(150); stroke(OUTLINE); strokeWeight(3);
+    rect(115, -35, 10, 10);
+
+    noStroke();
+    fill('#2ECC71');
+    textFont('Permanent Marker', 15);
+    textAlign(CENTER, CENTER);
+    text("KWIK-E-MART", 120, -50);
+    pop();
+
+    // The gap in bldgOffset wrap logic expects approx 600 total width.
+    // 20+180 + gap + 280+240 = roughly 550 bounds. 600 loop works.
+  }
+
+  function drawRoad() {
+    let roadY = height * 0.66;
+    let roadH = height * 0.34;
+    
+    push();
+    strokeWeight(5);
+    stroke(OUTLINE);
+    fill(51); // Dark grey asphalt
+    rect(-10, roadY, width + 20, roadH + 10);
+    
+    // Center Dashed line (loops based on roadOffset)
+    noStroke();
+    fill(SKIN_YELLOW);
+    for(let x = -80 + roadOffset; x < width + 80; x += 80) {
+      rect(x, roadY + roadH/2 - 4, 40, 8);
+    }
+    pop();
+  }
+
+  function drawCars() {
+    let roadY = height * 0.66;
+    
+    // Left Car (Purple)
+    push();
+    translate(width * 0.1, roadY + 40 + carBounce);
+    
+    strokeWeight(4); stroke(OUTLINE);
+    fill('#9b59b6');
+    // Cabin
+    rect(30, -35, 80, 40, 30, 30, 0, 0); 
+    // Body
+    rect(0, 0, 160, 50, 15, 30, 10, 10);
+    
+    // Window
+    fill('#87CEEB');
+    rect(40, -28, 60, 30, 15, 15, 0, 0);
+
+    // Wheels
+    fill(0);
+    circle(35, 50, 35); // back wheel
+    circle(125, 50, 35); // front wheel
+    
+    fill(180); // Hubcaps
+    circle(35, 50, 15);
+    circle(125, 50, 15);
+    pop();
+
+    // Right Car (Green)
+    push();
+    translate(width * 0.6, roadY + 60 + carBounce);
+    
+    strokeWeight(4); stroke(OUTLINE);
+    fill('#27ae60');
+    // Cabin
+    rect(40, -35, 80, 40, 30, 30, 0, 0);
+    // Body (Mirrored visually in HTML, here we just draw it backwards or use scale)
+    // Actually using scale(-1, 1) to mirror it completely
+    translate(160, 0); 
+    scale(-1, 1);
+    
+    rect(0, 0, 160, 50, 15, 30, 10, 10);
+    
+    // Window
+    fill('#87CEEB');
+    rect(40, -28, 60, 30, 15, 15, 0, 0);
+
+    // Wheels
+    fill(0);
+    circle(35, 50, 35);
+    circle(125, 50, 35);
+    
+    fill(180); // Hubcaps
+    circle(35, 50, 15);
+    circle(125, 50, 15);
+    pop();
+  }
+
+  function drawCharacters() {
+    let roadY = height * 0.66;
+    
+    strokeWeight(4);
+    stroke(OUTLINE);
+    
+    // Left Character
+    push();
+    // Positioned behind trunk of purple car
+    translate(width * 0.1 - 10, roadY + 20 + carBounce); 
+    
+    // Stick Body/Legs
+    line(0, 0, 0, 40); // Torso
+    line(0, 40, -15, 70); // Leg L
+    line(0, 40, 15, 70); // Leg R
+    
+    // Head (Yellow fill)
+    fill(SKIN_YELLOW);
+    circle(0, 0, 30);
+    // Eyes
+    fill(255); circle(-5, -5, 10); circle(5, -5, 10);
+    fill(0); circle(-5, -5, 3); circle(5, -5, 3);
+
+    // Aiming Arm
+    line(0, 15, 45, 0);
+    
+    // Pistol (Black)
+    push();
+    fill(0); translate(45, 0); rotate(radians(-15));
+    beginShape();
+    vertex(0,0); vertex(15,0); vertex(15,-6); vertex(3,-6); vertex(3,-10); vertex(-3,-10); vertex(-3, -2); endShape(CLOSE);
+    pop();
+    pop();
+
+    // Right Character (Mirrored, behind green car hood)
+    push();
+    translate(width * 0.6 + 180, roadY + 40 + carBounce);
+    scale(-1, 1); // Face left
+    
+    // Stick Body/Legs
+    line(0, 0, 0, 40); // Torso
+    line(0, 40, -15, 70); // Leg L
+    line(0, 40, 15, 70); // Leg R
+    
+    // Head
+    fill(SKIN_YELLOW);
+    circle(0, 0, 30);
+    fill(255); circle(-5, -5, 10); circle(5, -5, 10);
+    fill(0); circle(-5, -5, 3); circle(5, -5, 3);
+
+    // Aiming Arm
+    line(0, 15, 45, -5);
+    
+    // Pistol
+    push();
+    fill(0); translate(45, -5); rotate(radians(-10));
+    beginShape();
+    vertex(0,0); vertex(15,0); vertex(15,-6); vertex(3,-6); vertex(3,-10); vertex(-3,-10); vertex(-3, -2); endShape(CLOSE);
+    pop();
+    pop();
+  }
+
+  function drawMuzzleFlashes() {
+    let roadY = height * 0.66;
+    
+    strokeWeight(3);
+    stroke(OUTLINE);
+    fill(SKIN_YELLOW);
+
+    // Flash for Left Char
+    push();
+    translate(width * 0.1 + 45, roadY + 20 + carBounce);
+    drawStar(0, -6, 10, 25, 5); 
+    pop();
+
+    // Flash for Right Char
+    push();
+    translate(width * 0.6 + 120, roadY + 40 + carBounce);
+    drawStar(0, -6, 10, 25, 5);
+    pop();
+  }
+
+  // Helper for drawing star shapes
+  function drawStar(x, y, radius1, radius2, npoints) {
+    let angle = TWO_PI / npoints;
+    let halfAngle = angle / 2.0;
+    beginShape();
+    for (let a = 0; a < TWO_PI; a += angle) {
+      let sx = x + cos(a) * radius2;
+      let sy = y + sin(a) * radius2;
+      vertex(sx, sy);
+      sx = x + cos(a + halfAngle) * radius1;
+      sy = y + sin(a + halfAngle) * radius1;
+      vertex(sx, sy);
+    }
+    endShape(CLOSE);
+  }
+
+  function drawText(level) {
+    push();
+    let pulseScale = map(level, 0, 1, 1.0, 1.5);
+    
+    translate(width/2, height * 0.15);
+    scale(pulseScale);
+    
+    textFont('Permanent Marker');
+    textAlign(CENTER, CENTER);
+    textSize(80);
+    
+    // Draw Thick Stroke
+    stroke(OUTLINE);
+    strokeWeight(15);
+    fill('#F77F00'); // Orange fallback if gradient fail
+    
+    // Simple Gradient fill simulation by drawing twice slightly offset
+    text("EBK", 0, 0);
+    noStroke();
+    fill(SKIN_YELLOW);
+    text("EBK", 0, -4); // Yellow inner top
+    pop();
+  }
+
+  function drawCRT() {
+    push();
+    // 20% opacity dark lines
+    stroke(0, 51); // 0.2 opacity approx 51 out of 255
+    strokeWeight(1.5);
+    // Draw lines horizontally across
+    for(let y = 0; y < height; y += 4) {
+      line(0, y, width, y);
+    }
+    pop();
+  }
+
+  // Handle window resizing cleanly while maintaining ratio
+  function windowResized() {
+    let canvasWidth = (windowHeight * (9/16)) * 0.95; 
+    let canvasHeight = windowHeight * 0.95;
+    if (canvasHeight < 540) {
+      canvasHeight = 540;
+      canvasWidth = 432;
+    }
+    resizeCanvas(canvasWidth, canvasHeight);
+  }
+</script>
 </body>
 </html>
