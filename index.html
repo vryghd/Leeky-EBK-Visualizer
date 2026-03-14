@@ -45,19 +45,6 @@
   let isFiring = false;
   let flashTimer = 0;
 
-  function preload() {
-    // Need to use URL encoded space or just load it with callback
-    soundFormats('m4a', 'mp3');
-    song = loadSound('Leeky%20EBK.m4a', soundLoaded);
-  }
-
-  function soundLoaded() {
-    // Attempt auto-play when loaded
-    getAudioContext().resume().then(() => {
-      song.loop();
-    }).catch(e => console.log("Autoplay blocked, requires interaction", e));
-  }
-
   function setup() {
     let canvasWidth = (windowHeight * (9/16)) * 0.95; 
     let canvasHeight = windowHeight * 0.95;
@@ -83,20 +70,38 @@
         scale: random(0.5, 1.2)
       });
     }
+
+    // Load sound asynchronously AFTER setup starts so we don't block the "Loading..." screen
+    soundFormats('m4a', 'mp3');
+    song = loadSound('Leeky EBK.m4a', soundLoaded, soundFailed);
   }
+
+  function soundLoaded() {
+    console.log("Audio Loaded Successfully!");
+    // Attempt auto-play when loaded, but if blocked, user can click.
+    getAudioContext().resume().then(() => {
+      song.loop();
+    }).catch(e => console.log("Autoplay blocked setup:", e));
+  }
+
+  function soundFailed(err) {
+    console.error("Failed to load audio file", err);
+  }
+
 
   function draw() {
     background(SIMPSONS_BLUE);
 
     // Ensure audio plays if user interacts anywhere in case autoplay blocked
-    if (!song.isPlaying() && getAudioContext().state === 'running') {
-       if (song.isLoaded()) {
+    if (song && song.isLoaded() && !song.isPlaying() && getAudioContext().state === 'running') {
          song.loop();
-       }
     }
 
-    // Read audio level
-    let level = amplitude.getLevel();
+    // Read audio level safely
+    let level = 0;
+    if (song && song.isPlaying()) {
+       level = amplitude.getLevel();
+    }
     
     // Beat detection logic (simple threshold)
     if (level > 0.3 && flashTimer <= 0) {
@@ -173,7 +178,7 @@
     if (getAudioContext().state !== 'running') {
       getAudioContext().resume();
     }
-    if (song.isLoaded() && !song.isPlaying()) {
+    if (song && song.isLoaded() && !song.isPlaying()) {
       song.loop();
     }
   }
