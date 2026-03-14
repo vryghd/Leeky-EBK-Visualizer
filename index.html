@@ -29,7 +29,6 @@
   // -- ASSETS & SOUND --
   let song;
   let amplitude;
-  let started = false;
   
   // -- COLORS --
   const SIMPSONS_BLUE = '#7092BE';
@@ -47,8 +46,16 @@
   let flashTimer = 0;
 
   function preload() {
-    // Attempt to load the audio file. Make sure Leeky EBK.m4a exists relative to index.html
-    song = loadSound('Leeky EBK.m4a');
+    // Need to use URL encoded space or just load it with callback
+    soundFormats('m4a', 'mp3');
+    song = loadSound('Leeky%20EBK.m4a', soundLoaded);
+  }
+
+  function soundLoaded() {
+    // Attempt auto-play when loaded
+    getAudioContext().resume().then(() => {
+      song.loop();
+    }).catch(e => console.log("Autoplay blocked, requires interaction", e));
   }
 
   function setup() {
@@ -80,10 +87,12 @@
 
   function draw() {
     background(SIMPSONS_BLUE);
-    
-    if (!started) {
-      drawStartScreen();
-      return;
+
+    // Ensure audio plays if user interacts anywhere in case autoplay blocked
+    if (!song.isPlaying() && getAudioContext().state === 'running') {
+       if (song.isLoaded()) {
+         song.loop();
+       }
     }
 
     // Read audio level
@@ -149,28 +158,23 @@
     rect(0, 0, width, height);
   }
 
-  // --- DRAWING FUNCTIONS ---
-
-  function drawStartScreen() {
-    fill(0, 150);
-    rect(0, 0, width, height);
-    
-    fill(255);
-    noStroke();
-    textAlign(CENTER, CENTER);
-    textFont('Boogaloo', 36);
-    text("CLICK TO START", width/2, height/2);
+  function windowResized() {
+    let canvasWidth = (windowHeight * (9/16)) * 0.95; 
+    let canvasHeight = windowHeight * 0.95;
+    if (canvasHeight < 540) {
+      canvasHeight = 540;
+      canvasWidth = 432;
+    }
+    resizeCanvas(canvasWidth, canvasHeight);
   }
 
+  // Force unlock audio context on any click to guarantee playback if browser blocks
   function mousePressed() {
-    if (!started && getAudioContext().state !== 'running') {
-      getAudioContext().resume().then(() => {
-        song.loop();
-        started = true;
-      });
-    } else if (!started && song.isLoaded()) {
+    if (getAudioContext().state !== 'running') {
+      getAudioContext().resume();
+    }
+    if (song.isLoaded() && !song.isPlaying()) {
       song.loop();
-      started = true;
     }
   }
 
