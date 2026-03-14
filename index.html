@@ -75,25 +75,31 @@ body {
 }
 @keyframes backgroundMove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-.building { border: 4px solid var(--outline); position: relative; flex-shrink: 0; margin-right: 100px; }
-
-/* MOE'S TAVERN STYLE */
-.moes { 
-  width: 180px; height: 130px; 
-  background: #E48257; 
-  border-top: 15px solid #4A7A59; 
+/* KWIK-E-MART STYLE */
+.kwike { 
+  width: 190px; height: 130px; 
+  background: #EEDC9A; 
+  border-top: 25px solid #2ECC71; /* Green roof */
+  border-bottom: 20px solid #D35400; /* Orange base */
 }
-.moes::before { 
+.kwike::before { 
   content: ''; position: absolute;
-  top: 30px; left: 20px; width: 50px; height: 50px;
+  top: 15px; left: 10px; width: 160px; height: 50px;
   background: #87CEEB; border: 4px solid var(--outline);
-  background-image: linear-gradient(0deg, transparent 46%, var(--outline) 46%, var(--outline) 54%, transparent 54%), linear-gradient(90deg, transparent 46%, var(--outline) 46%, var(--outline) 54%, transparent 54%);
+  background-image: linear-gradient(90deg, transparent 48%, var(--outline) 48%, var(--outline) 52%, transparent 52%);
+  background-size: 53px 100%;
 }
-.moes-sign { 
-  position: absolute; top: 10px; right: 10px;
-  background: #50312F; border: 3px solid var(--outline); padding: 5px;
-  font-family: 'Permanent Marker', cursive; font-size: 0.9rem; color: #F2C14E;
-  transform: rotate(-3deg); box-shadow: 3px 3px 0 var(--outline); text-align: center; line-height: 1.1;
+.kwike-sign { 
+  position: absolute; top: -45px; left: 50%; transform: translateX(-50%);
+  background: white; border: 4px solid #D35400; padding: 2px 10px;
+  border-radius: 8px; font-family: 'Permanent Marker', cursive; font-size: 1.1rem; 
+  color: #2ECC71; white-space: nowrap; box-shadow: 2px 2px 0 var(--outline);
+}
+.kwike-sign::before {
+  content: ''; position: absolute;
+  top: 28px; left: 50%; transform: translateX(-50%);
+  width: 8px; height: 18px; background: #999; border: 3px solid var(--outline); 
+  z-index: -1;
 }
 
 /* LARD LAD STYLE */
@@ -101,6 +107,7 @@ body {
   width: 160px; height: 130px; 
   background: #F3E5AB; 
   border-top: 10px solid #E56B55; 
+  margin-right: 120px;
 }
 .donuts::before {
   content: "LARD LAD"; position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
@@ -109,15 +116,24 @@ body {
   border-radius: 10px;
 }
 .donuts-sign { 
-  position: absolute; top: -65px; left: 50%; transform: translateX(-50%);
-  width: 36px; height: 36px; border: 16px solid #F472B6; border-radius: 50%;
-  box-shadow: 0 0 0 4px var(--outline), inset 0 0 0 4px var(--outline);
+  position: absolute; top: -85px; left: 50%; transform: translateX(-50%);
+  width: 50px; height: 50px; border: 20px solid #F472B6; border-radius: 50%;
+  box-shadow: 0 0 0 5px var(--outline), inset 0 0 0 5px var(--outline);
 }
 .donuts-sign::after {
   content: ''; position: absolute;
-  width: 4px; height: 4px; background: white; border-radius: 50%;
-  top: -8px; left: 0;
-  box-shadow: 18px -4px 0 yellow, 30px 8px 0 cyan, -4px 18px 0 lightgreen, 4px 30px 0 white, 30px 30px 0 yellow;
+  width: 10px; height: 40px; background: #999; border: 4px solid var(--outline);
+  bottom: -60px; left: 50%; transform: translateX(-50%);
+  z-index: -1;
+}
+.donuts-sprinkles {
+  position: absolute; top: -85px; left: 50%; transform: translateX(-50%);
+  width: 90px; height: 90px; border-radius: 50%; pointer-events: none; z-index: 5;
+  background-image: radial-gradient(circle at 20% 20%, yellow 3px, transparent 4px),
+                    radial-gradient(circle at 80% 30%, cyan 3px, transparent 4px),
+                    radial-gradient(circle at 40% 80%, white 3px, transparent 4px),
+                    radial-gradient(circle at 80% 80%, lightgreen 3px, transparent 4px),
+                    radial-gradient(circle at 20% 70%, yellow 3px, transparent 4px);
 }
 
 /* ROAD */
@@ -217,10 +233,10 @@ body {
   <div class="ebk-logo" id="logo">EBK</div>
 
   <div class="buildings-container">
-    <div class="building moes"><div class="moes-sign">LEEKY'S<br>TAVERN</div></div>
-    <div class="building donuts"><div class="donuts-sign"></div></div>
-    <div class="building moes"><div class="moes-sign">LEEKY'S<br>TAVERN</div></div>
-    <div class="building donuts"><div class="donuts-sign"></div></div>
+    <div class="building kwike"><div class="kwike-sign">KWIK-E-MART</div></div>
+    <div class="building donuts"><div class="donuts-sign"></div><div class="donuts-sprinkles"></div></div>
+    <div class="building kwike"><div class="kwike-sign">KWIK-E-MART</div></div>
+    <div class="building donuts"><div class="donuts-sign"></div><div class="donuts-sprinkles"></div></div>
   </div>
 
   <div class="road"><div class="road-lines"></div></div>
@@ -263,12 +279,12 @@ body {
 
   async function init() {
     try {
-      const res = await fetch('ebk.m4a');
+      const res = await fetch('Leeky EBK.m4a');
       const buf = await res.arrayBuffer();
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       audioBuffer = await audioCtx.decodeAudioData(buf);
       startAudio();
-    } catch (e) { console.log("Init error"); }
+    } catch (e) { console.log("Init error", e); }
   }
 
   function startAudio() {
