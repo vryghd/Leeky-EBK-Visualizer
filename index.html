@@ -3,327 +3,673 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EBK - Visualizer</title>
+<title>EBK - 3D Simpsons Visualizer</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Boogaloo&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Boogaloo&display=swap');
 
-:root {
-  --yellow: #FED90F;
-  --blue: #1A8FD1;
-  --orange: #F77F00;
-  --white: #FFF9E6;
-  --outline: #1a1a1a;
-  --sky: #87CEEB;
-  --grass: #3A7A3A;
-  --donut-pink: #FF69B4;
-  --skin-tone: #8D5524; /* Black Simpsons Character Skin Tone */
-}
+  :root {
+    --bg-color: #000;
+  }
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    background: var(--bg-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Boogaloo', cursive;
+  }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+  /* Force exactly 9:16 aspect ratio, scale to fit screen vertically */
+  #visualizer-wrapper {
+    position: relative;
+    width: 100vh;
+    max-width: 56.25vh; /* 9/16 = 0.5625 */
+    height: 100vh;
+    background: #000;
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+  }
 
-body {
-  background: #000;
-  font-family: 'Boogaloo', cursive;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
+  /* If screen is narrower than 9:16, bound by width instead */
+  @media (max-aspect-ratio: 9/16) {
+    #visualizer-wrapper {
+        width: 100vw;
+        height: 177.77vw; /* 16/9 = 1.777 */
+        max-width: none;
+    }
+  }
 
-/* 1080x1350 Instagram Portrait Frame */
-#insta-frame {
-  width: 432px; /* Scaled down for desktop preview, 1080/2.5 */
-  height: 540px; /* Scaled down for desktop preview, 1350/2.5 */
-  background: var(--sky);
-  position: relative;
-  overflow: hidden;
-  border: 4px solid #333;
-  box-shadow: 0 0 100px rgba(0,0,0,0.8);
-}
+  canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
 
-/* Clouds */
-.cloud {
-  position: absolute;
-  background: white;
-  border-radius: 50px;
-  opacity: 0.9;
-  animation: drift linear infinite;
-}
-.cloud::before, .cloud::after { content: ''; position: absolute; background: white; border-radius: 50%; }
-.cloud:nth-child(1) { width: 60px; height: 20px; top: 10%; left: -80px; animation-duration: 25s; }
-.cloud:nth-child(1)::before { width: 30px; height: 30px; top: -15px; left: 8px; }
-.cloud:nth-child(1)::after { width: 22px; height: 22px; top: -10px; left: 25px; }
-
-@keyframes drift {
-  from { transform: translateX(-100px); }
-  to { transform: translateX(550px); }
-}
-
-/* SUN */
-.sun {
-  position: absolute;
-  top: 25px;
-  right: 35px;
-  width: 45px;
-  height: 45px;
-  background: var(--yellow);
-  border-radius: 50%;
-  border: 3px solid var(--outline);
-  box-shadow: 0 0 20px rgba(254,217,15,0.4);
-}
-
-/* TITLE */
-.title {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Permanent Marker', cursive;
-  font-size: 2.8rem;
-  color: var(--yellow);
-  -webkit-text-stroke: 2px var(--outline);
-  text-shadow: 4px 4px 0 var(--orange), 6px 6px 0 var(--outline);
-  z-index: 50;
-  letter-spacing: 4px;
-}
-
-/* ARTIST (Black Simpsons Style) */
-#artist {
-  position: absolute;
-  bottom: 110px;
-  left: 40px;
-  width: 70px;
-  height: 120px;
-  z-index: 20;
-  transform-origin: bottom center;
-}
-#artist .hair {
-  width: 50px; height: 30px; background: #000;
-  border-radius: 25px 25px 0 0; border: 3px solid var(--outline);
-  position: absolute; top: -12px; left: 10px;
-}
-#artist .head {
-  width: 45px; height: 50px; background: var(--skin-tone);
-  border: 3px solid var(--outline); border-radius: 20px 20px 15px 15px;
-  position: absolute; top: 5px; left: 12px;
-}
-#artist .eyes { position: absolute; top: 18px; left: 10px; display: flex; gap: 5px; }
-.eye { width: 12px; height: 12px; background: white; border-radius: 50%; border: 2px solid var(--outline); position: relative; }
-.eye::after { content: ''; position: absolute; width: 4px; height: 4px; background: black; border-radius: 50%; top: 2px; left: 2px; }
-#artist .hoodie {
-  width: 60px; height: 60px; background: #e63946;
-  border: 3px solid var(--outline); border-radius: 12px 12px 0 0;
-  position: absolute; top: 50px; left: 5px;
-}
-
-/* SKATER (Black Simpsons Style) */
-#skater {
-  position: absolute;
-  bottom: 108px;
-  right: 30px;
-  width: 60px;
-  height: 90px;
-  z-index: 20;
-  animation: skateMove 4s ease-in-out infinite;
-}
-#skater .head {
-  width: 35px; height: 40px; background: var(--skin-tone);
-  border: 3px solid var(--outline); border-radius: 10px;
-  position: absolute; top: 0; right: 10px;
-}
-#skater .hair {
-  width: 40px; height: 15px; background: #000;
-  border: 2px solid var(--outline); position: absolute; top: -8px; right: 8px;
-  clip-path: polygon(0% 100%, 15% 0%, 30% 100%, 45% 0%, 60% 100%, 75% 0%, 90% 100%, 100% 0%, 100% 100%);
-}
-#skater .board {
-  width: 70px; height: 8px; background: #222;
-  border: 2px solid var(--outline); border-radius: 4px;
-  position: absolute; bottom: 0; right: -5px;
-}
-@keyframes skateMove {
-  0%, 100% { transform: translateX(0) rotate(0); }
-  50% { transform: translateX(-20px) rotate(-5deg); }
-}
-
-/* Skyline */
-.skyline {
-  position: absolute; bottom: 100px; left: 0; right: 0;
-  height: 90px; display: flex; align-items: flex-end; justify-content: center; gap: 3px;
-  z-index: 5; opacity: 0.6; pointer-events: none;
-}
-.building { background: #2a4a6b; border: 2px solid var(--outline); border-bottom: none; }
-
-/* GROUND & ROAD */
-.ground { width: 100%; height: 100px; background: var(--grass); border-top: 3px solid var(--outline); position: absolute; bottom: 0; z-index: 8; }
-.road { position: absolute; bottom: 0; width: 100%; height: 40px; background: #222; border-top: 3px solid #000; z-index: 9; }
-.road::after {
-  content: ''; position: absolute; top: 50%; width: 100%; height: 4px;
-  background: repeating-linear-gradient(90deg, var(--yellow) 0, var(--yellow) 25px, transparent 25px, transparent 50px);
-  transform: translateY(-50%); animation: roadScroll 0.6s linear infinite;
-}
-@keyframes roadScroll { from { background-position: 0 0; } to { background-position: -50px 0; } }
-
-/* VIZ BARS */
-#viz {
-  position: absolute; bottom: 40px; left: 0; right: 0; height: 200px;
-  display: flex; align-items: flex-end; justify-content: center; gap: 4px; padding: 0 15px; z-index: 15;
-}
-.bar {
-  flex: 1; background: var(--yellow); border: 2px solid var(--outline);
-  border-bottom: none; border-radius: 5px 5px 0 0; transition: height 0.05s ease-out;
-}
-
-/* CRT SCANLINES & VIGNETTE */
-#insta-frame::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.3) 100%);
-  pointer-events: none; z-index: 101;
-}
-#insta-frame::after {
-  content: ''; position: absolute; inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.05) 1px, rgba(0,0,0,0.05) 2px);
-  pointer-events: none; z-index: 102;
-}
-
-/* CONTROLS */
-#controls {
-  position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
-  z-index: 200; display: flex; flex-direction: column; align-items: center; gap: 8px;
-}
-.play-btn {
-  font-family: 'Permanent Marker', cursive; font-size: 1.4rem; padding: 12px 30px;
-  background: var(--yellow); border: 4px solid var(--outline); border-radius: 15px;
-  cursor: pointer; box-shadow: 5px 5px 0 var(--outline);
-}
-.play-btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--outline); }
-#status { color: #fff; background: rgba(0,0,0,0.6); padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; letter-spacing: 1px; }
-
+  /* VHS Filter Overlay */
+  #vhs-filter {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.05) 2px,
+      rgba(0,0,0,0.05) 4px
+    );
+    pointer-events: none;
+    z-index: 50;
+    mix-blend-mode: overlay;
+  }
+  
+  #vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+    pointer-events: none;
+    z-index: 51;
+  }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-<div id="insta-frame">
-  <div class="cloud"></div>
-  <div class="sun"></div>
-  <div class="title">EBK</div>
-  <div class="skyline" id="skyline"></div>
-  <div id="viz"></div>
-
-  <!-- Artist -->
-  <div id="artist">
-    <div class="hair"></div>
-    <div class="head">
-      <div class="eyes">
-        <div class="eye"></div>
-        <div class="eye"></div>
-      </div>
-    </div>
-    <div class="hoodie"></div>
-  </div>
-
-  <!-- Skater -->
-  <div id="skater">
-    <div class="hair"></div>
-    <div class="head"></div>
-    <div class="board"></div>
-  </div>
-
-  <div class="ground"></div>
-  <div class="road"></div>
-
-  <div id="controls">
-    <button class="play-btn" id="playBtn">▶ PLAY EBK</button>
-    <div id="status">READY TO VIBE</div>
-  </div>
+<div id="visualizer-wrapper">
+  <div id="vhs-filter"></div>
+  <div id="vignette"></div>
+  <div id="canvas-container" style="width: 100%; height: 100%;"></div>
 </div>
 
 <script>
-  // Skyline
-  const skyline = document.getElementById('skyline');
-  for (let i = 0; i < 12; i++) {
-    const b = document.createElement('div');
-    b.className = 'building';
-    b.style.width = (25 + Math.random() * 20) + 'px';
-    b.style.height = (40 + Math.random() * 50) + 'px';
-    skyline.appendChild(b);
-  }
+// --- PROCEDURAL TEXTURE GENERATORS ---
 
-  // Viz Bars
-  const viz = document.getElementById('viz');
-  const bars = [];
-  const BAR_COUNT = 24;
-  for (let i = 0; i < BAR_COUNT; i++) {
-    const bar = document.createElement('div');
-    bar.className = 'bar';
-    const t = i / BAR_COUNT;
-    if (t < 0.4) bar.style.background = '#FED90F';
-    else if (t < 0.7) bar.style.background = '#F77F00';
-    else bar.style.background = '#FF4400';
-    viz.appendChild(bar);
-    bars.push(bar);
-  }
-
-  // Audio Context
-  let audioCtx, analyser, source, audioBuffer, isPlaying = false, animFrame;
-  const playBtn = document.getElementById('playBtn');
-  const statusEl = document.getElementById('status');
-  const artist = document.getElementById('artist');
-
-  async function initAudio() {
-    try {
-      const response = await fetch('ebk.m4a');
-      const arrayBuffer = await response.arrayBuffer();
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-      statusEl.textContent = 'EBK - LOADED';
-    } catch (e) {
-      statusEl.textContent = 'ERROR LOADING AUDIO';
+function createTextCanvas(text, width, height, fontSize, isTitle = false) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `${fontSize}px 'Boogaloo', cursive`;
+    
+    if (isTitle) {
+        // Simmons 3D style
+        ctx.fillStyle = '#FED90F'; // Yellow
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = width * 0.02;
+        
+        // 3D Extrusion
+        for (let i = 20; i > 0; i--) {
+            ctx.fillStyle = (i % 2 === 0) ? '#cfaf00' : '#8c7600';
+            ctx.fillText(text, width/2 - i*2, height/2 + i*2);
+            ctx.strokeText(text, width/2 - i*2, height/2 + i*2);
+        }
+        // Front face
+        ctx.fillStyle = '#FED90F';
+        ctx.fillText(text, width/2, height/2);
+        ctx.strokeText(text, width/2, height/2);
+    } else {
+        ctx.fillStyle = '#FFF';
+        ctx.fillText(text, width/2, height/2);
     }
-  }
-  initAudio();
+    
+    return new THREE.CanvasTexture(canvas);
+}
 
-  playBtn.addEventListener('click', () => {
-    if (!audioBuffer) return;
-    if (isPlaying) {
-      source.stop();
-      isPlaying = false;
-      playBtn.textContent = '▶ PLAY EBK';
-      cancelAnimationFrame(animFrame);
-      bars.forEach(b => b.style.height = '4px');
-      return;
+function createMoesTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    
+    // Background (Purple block)
+    ctx.fillStyle = '#6c3483';
+    ctx.fillRect(0, 0, 1024, 512);
+    
+    // Brick lines
+    ctx.strokeStyle = '#512e5f';
+    ctx.lineWidth = 4;
+    for(let y=0; y<512; y+=32) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke();
+        for(let x=0; x<1024; x+=64) {
+            let offset = (y/32)%2===0 ? 0 : 32;
+            ctx.beginPath(); ctx.moveTo(x+offset, y); ctx.lineTo(x+offset, y+32); ctx.stroke();
+        }
     }
-    startAudio();
-  });
+    
+    // Window/Sign
+    ctx.fillStyle = '#F77F00';
+    ctx.fillRect(300, 100, 424, 150);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(300, 100, 424, 150);
+    
+    ctx.fillStyle = '#FFF';
+    ctx.font = "80px 'Boogaloo'";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("MOE'S", 512, 175);
+    
+    // Door
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(600, 250, 100, 262);
+    ctx.strokeRect(600, 250, 100, 262);
+    
+    // Window pane
+    ctx.fillStyle = '#87CEEB';
+    ctx.fillRect(350, 300, 150, 100);
+    ctx.strokeRect(350, 300, 150, 100);
+    
+    return new THREE.CanvasTexture(canvas);
+}
 
-  function startAudio() {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+function createKwikETexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = '#f1c40f'; // Yellow building
+    ctx.fillRect(0, 0, 1024, 512);
+    
+    ctx.fillStyle = '#2980b9'; // Blue roof trim
+    ctx.fillRect(0, 0, 1024, 80);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 6;
+    ctx.strokeRect(0, 0, 1024, 80);
+    
+    // Glass doors/windows
+    ctx.fillStyle = '#bdc3c7';
+    ctx.fillRect(200, 200, 624, 312);
+    ctx.strokeRect(200, 200, 624, 312);
+    
+    // KWIK E MART Text
+    ctx.fillStyle = '#e74c3c';
+    ctx.font = "70px 'Boogaloo'";
+    ctx.textAlign = "center";
+    ctx.fillText("KWIK-E-MART", 512, 60);
+
+    return new THREE.CanvasTexture(canvas);
+}
+
+function createCharacterTexture(isLeft) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    
+    // We leave background transparent for the sprite
+    ctx.clearRect(0, 0, 512, 512);
+    
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 8;
+    
+    const skinColor = isLeft ? '#8B5A2B' : '#A0522D'; // Black skin tones
+    const shirtColor = isLeft ? '#2980b9' : '#e74c3c';
+    
+    // Body (Trap style puffer jacket or hoodie)
+    ctx.fillStyle = shirtColor;
+    ctx.beginPath();
+    ctx.roundRect(156, 250, 200, 200, 40);
+    ctx.fill(); ctx.stroke();
+    
+    // Head
+    ctx.fillStyle = skinColor;
+    ctx.beginPath();
+    ctx.arc(256, 180, 80, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+    
+    // Hair (Dreads for left, Fade for right)
+    ctx.fillStyle = '#111';
+    if (isLeft) {
+        // Dreads
+        for(let i=0; i<8; i++) {
+            ctx.beginPath();
+            ctx.roundRect(170 + i*20, 80 + Math.random()*20, 15, 60 + Math.random()*40, 5);
+            ctx.fill(); ctx.stroke();
+        }
+    } else {
+        // High top fade
+        ctx.beginPath();
+        ctx.moveTo(176, 170);
+        ctx.lineTo(190, 80);
+        ctx.lineTo(320, 70);
+        ctx.lineTo(336, 170);
+        ctx.fill(); ctx.stroke();
+    }
+    
+    // Eye (Simpsons style - big white circles)
+    ctx.fillStyle = '#FFF';
+    const eyeX = isLeft ? 300 : 210;
+    ctx.beginPath();
+    ctx.arc(eyeX, 160, 25, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#000'; // Pupil
+    ctx.beginPath();
+    ctx.arc(isLeft ? 310 : 200, 160, 5, 0, Math.PI*2);
+    ctx.fill();
+    
+    // Arm & Gun
+    ctx.fillStyle = skinColor;
+    const armStartX = isLeft ? 256 : 256;
+    const armEndX = isLeft ? 450 : 62;
+    ctx.beginPath();
+    ctx.roundRect(Math.min(armStartX, armEndX), 280, Math.abs(armStartX-armEndX), 40, 20);
+    ctx.fill(); ctx.stroke();
+    
+    // Gun
+    ctx.fillStyle = '#333';
+    if (isLeft) {
+        // Uzi on the left
+        ctx.fillRect(430, 260, 50, 20); // Receiver
+        ctx.fillRect(480, 266, 20, 8);  // Barrel
+        ctx.fillRect(430, 280, 15, 30); // Grip
+        ctx.fillRect(455, 280, 10, 40); // Mag
+    } else {
+        // Pistol on the right
+        ctx.fillRect(22, 260, 40, 18); // Slide/Barrel
+        ctx.fillRect(42, 278, 15, 30); // Grip
+    }
+    
+    return new THREE.CanvasTexture(canvas);
+}
+
+function createMuzzleFlashTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = '#FFDD00';
+    ctx.beginPath();
+    ctx.moveTo(64, 0); ctx.lineTo(76, 48); ctx.lineTo(128, 64);
+    ctx.lineTo(76, 80); ctx.lineTo(64, 128); ctx.lineTo(52, 80);
+    ctx.lineTo(0, 64); ctx.lineTo(52, 48); ctx.closePath();
+    ctx.fill();
+    
+    return new THREE.CanvasTexture(canvas);
+}
+
+
+// --- THREE.JS SETUP ---
+
+const container = document.getElementById('canvas-container');
+const scene = new THREE.Scene();
+
+// Camera setup for 9:16 aspect
+const aspect = container.clientWidth / container.clientHeight;
+const camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 2000);
+camera.position.set(0, 150, 450); // Backed up and elevated to see action
+camera.lookAt(0, 80, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(container.clientWidth, container.clientHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // optimize
+container.appendChild(renderer.domElement);
+
+// Lighting
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+scene.add(ambientLight);
+const dirLight = new THREE.DirectionalLight(0xffeedd, 0.6);
+dirLight.position.set(200, 500, 300);
+scene.add(dirLight);
+
+// --- SCENE OBJECTS ---
+
+// 1. Sky Background (Classic Simpsons Blue + Custom Clouds later)
+scene.background = new THREE.Color('#4FA6FF');
+
+// Add Clouds (Procedural simple spheres)
+const cloudGroup = new THREE.Group();
+const cloudGeo = new THREE.SphereGeometry(20, 16, 16);
+const cloudMat = new THREE.MeshLambertMaterial({ color: 0xffffff, flatShading: true });
+for(let i=0; i<30; i++) {
+    const cluster = new THREE.Group();
+    const sf1 = new THREE.Mesh(cloudGeo, cloudMat);
+    sf1.scale.set(2, 1, 1);
+    const sf2 = new THREE.Mesh(cloudGeo, cloudMat);
+    sf2.position.set(15, 10, 0); sf2.scale.set(1.5, 1.2, 1);
+    const sf3 = new THREE.Mesh(cloudGeo, cloudMat);
+    sf3.position.set(-15, 8, 0); sf3.scale.set(1.2, 1, 1);
+    cluster.add(sf1, sf2, sf3);
+    
+    cluster.position.set(
+        (Math.random() - 0.5) * 1500,
+        300 + Math.random() * 200,
+        -400 - Math.random() * 400
+    );
+    cloudGroup.add(cluster);
+}
+scene.add(cloudGroup);
+
+// 2. EBK Title in Sky
+const titleTex = createTextCanvas("EBK", 1024, 512, 250, true);
+const titleMat = new THREE.MeshBasicMaterial({ map: titleTex, transparent: true });
+const titleMesh = new THREE.Mesh(new THREE.PlaneGeometry(800, 400), titleMat);
+titleMesh.position.set(0, 400, -300);
+scene.add(titleMesh);
+
+// 3. Road
+const roadGeo = new THREE.PlaneGeometry(2000, 800);
+const roadMat = new THREE.MeshLambertMaterial({ color: '#333333' });
+const road = new THREE.Mesh(roadGeo, roadMat);
+road.rotation.x = -Math.PI / 2;
+road.position.y = 0;
+road.position.z = 100;
+scene.add(road);
+
+// Road Lines (Scrolling)
+const lineGeo = new THREE.PlaneGeometry(100, 10);
+const lineMat = new THREE.MeshBasicMaterial({ color: '#FED90F' });
+const lines = [];
+for(let i=0; i<10; i++) {
+    const line = new THREE.Mesh(lineGeo, lineMat);
+    line.rotation.x = -Math.PI / 2;
+    line.position.set(-1000 + i*250, 2, 200);
+    scene.add(line);
+    lines.push(line);
+}
+
+// Grass background strip
+const grassGeo = new THREE.PlaneGeometry(2000, 400);
+const grassMat = new THREE.MeshLambertMaterial({ color: '#3A7A3A' });
+const grass = new THREE.Mesh(grassGeo, grassMat);
+grass.rotation.x = -Math.PI/2;
+grass.position.set(0, 1, -200);
+scene.add(grass);
+
+// 4. Buildings (Scrolling Background)
+const buildingGroup = new THREE.Group();
+const moesTex = createMoesTexture();
+const kwikTex = createKwikETexture();
+
+const bldgGeo = new THREE.PlaneGeometry(400, 200);
+const moesMat = new THREE.MeshLambertMaterial({ map: moesTex });
+const kwikMat = new THREE.MeshLambertMaterial({ map: kwikTex });
+
+const moesBldg = new THREE.Mesh(bldgGeo, moesMat);
+moesBldg.position.set(-200, 100, -250);
+const kwikBldg = new THREE.Mesh(new THREE.PlaneGeometry(500, 250), kwikMat);
+kwikBldg.position.set(500, 125, -250);
+
+buildingGroup.add(moesBldg, kwikBldg);
+scene.add(buildingGroup);
+
+// 5. Cars Construction
+function buildCar(colorHex) {
+    const carGroup = new THREE.Group();
+
+    // Body Outline Material
+    const bodyMat = new THREE.MeshLambertMaterial({ color: colorHex });
+    const blackMat = new THREE.MeshLambertMaterial({ color: 0x111111 });
+
+    // Chassis
+    const chassis = new THREE.Mesh(new THREE.BoxGeometry(220, 60, 100), bodyMat);
+    chassis.position.y = 40;
+    
+    // Cabin
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(120, 50, 90), bodyMat);
+    cabin.position.set(-20, 95, 0);
+
+    // Wheels
+    const wheelGeo = new THREE.CylinderGeometry(25, 25, 20, 16);
+    wheelGeo.rotateX(Math.PI/2);
+    
+    const w1 = new THREE.Mesh(wheelGeo, blackMat); w1.position.set(-70, 25, 50);
+    const w2 = new THREE.Mesh(wheelGeo, blackMat); w2.position.set(70, 25, 50);
+    const w3 = new THREE.Mesh(wheelGeo, blackMat); w3.position.set(-70, 25, -50);
+    const w4 = new THREE.Mesh(wheelGeo, blackMat); w4.position.set(70, 25, -50);
+
+    carGroup.add(chassis, cabin, w1, w2, w3, w4);
+    carGroup.userData.wheels = [w1, w2, w3, w4]; // Store to rotate later
+    return carGroup;
+}
+
+const leftCar = buildCar('#9b59b6'); // Purple
+leftCar.position.set(-200, 0, 150);
+scene.add(leftCar);
+
+const rightCar = buildCar('#d35400'); // Orange
+rightCar.position.set(200, 0, 80);
+rightCar.rotation.y = Math.PI; // Face other way
+scene.add(rightCar);
+
+// 6. Characters (Sprites on top of cars)
+const charMatLeft = new THREE.SpriteMaterial({ map: createCharacterTexture(true), transparent: true });
+const charLeft = new THREE.Sprite(charMatLeft);
+charLeft.scale.set(150, 150, 1);
+charLeft.position.set(30, 130, 45); // Sticking out of window
+leftCar.add(charLeft);
+
+const charMatRight = new THREE.SpriteMaterial({ map: createCharacterTexture(false), transparent: true });
+const charRight = new THREE.Sprite(charMatRight);
+charRight.scale.set(150, 150, 1);
+charRight.position.set(-30, 130, -45); // Because car is 180 rotated
+rightCar.add(charRight);
+
+// 7. Muzzle Flashes
+const flashTex = createMuzzleFlashTexture();
+const flashMat = new THREE.SpriteMaterial({ map: flashTex, transparent: true, opacity: 0 });
+
+const leftFlash = new THREE.Sprite(flashMat);
+leftFlash.scale.set(80, 80, 1);
+leftFlash.position.set(120, 130, 50);
+leftCar.add(leftFlash);
+
+const rightFlash = new THREE.Sprite(flashMat);
+rightFlash.scale.set(80, 80, 1);
+rightFlash.position.set(-120, 130, -50);
+rightCar.add(rightFlash);
+
+// Shell Casings & Tracers Arr
+const shells = [];
+const tracers = [];
+
+
+// --- AUDIO ANALYZER & LOGIC ---
+
+let audioCtx, analyser, source, dataArray;
+let isPlaying = false;
+let lastBeat = 0;
+
+async function initAudio() {
+    if(isPlaying) return;
+    
+    // Check if fonts are loaded before starting
+    await document.fonts.ready;
+    
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioCtx.createAnalyser();
     analyser.fftSize = 64;
-    source = audioCtx.createBufferSource();
-    source.buffer = audioBuffer;
-    source.connect(analyser);
-    analyser.connect(audioCtx.destination);
-    source.start();
-    isPlaying = true;
-    playBtn.textContent = '⏹ STOP';
-    animate();
-  }
-
-  const data = new Uint8Array(32);
-  function animate() {
-    animFrame = requestAnimationFrame(animate);
-    analyser.getByteFrequencyData(data);
-    let bass = 0;
-    for (let i = 0; i < BAR_COUNT; i++) {
-      const v = data[i % 16];
-      bars[i].style.height = Math.max(4, (v / 255) * 200) + 'px';
-      if (i < 4) bass += v;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    
+    try {
+        const response = await fetch('ebk.m4a');
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        
+        source = audioCtx.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        
+        source.loop = true;
+        source.start(0);
+        isPlaying = true;
+    } catch(err) {
+        console.error("Audio Load Error: ", err);
+        // Re-enable animation anyway for visual testing
+        isPlaying = true; 
     }
-    const bassLevel = bass / (4 * 255);
-    artist.style.transform = `scaleY(${1 + bassLevel * 0.3}) translateY(${-bassLevel * 30}px)`;
-  }
+}
+
+// Try autoplay right away
+window.addEventListener('load', () => setTimeout(initAudio, 50));
+// Fallback interact to play
+document.addEventListener('click', () => { if(!isPlaying) initAudio(); }, {once:true});
+
+
+// --- ANIMATION LOOP ---
+
+const clock = new THREE.Clock();
+
+function animate() {
+    requestAnimationFrame(animate);
+    
+    const time = clock.getElapsedTime();
+    const delta = clock.getDelta();
+    
+    // Audio Reactivity
+    let bass = 0;
+    let treble = 0;
+    if(isPlaying && analyser) {
+        analyser.getByteFrequencyData(dataArray);
+        bass = (dataArray[0] + dataArray[1] + dataArray[2]) / 3 / 255; // Normalize 0-1
+        treble = (dataArray[8] + dataArray[9]) / 2 / 255;
+        
+        // Shoot trigger on heavy bass spike
+        if(bass > 0.8 && time - lastBeat > 0.15) {
+            triggerShoot();
+            lastBeat = time;
+        }
+    }
+    
+    // Parallax & Scrolling Engine (Reversed to scroll Left to Right)
+    const scrollSpeed = 600 * delta * (1 + bass*0.5); // Speed up on bass
+    
+    // Road lines
+    lines.forEach(line => {
+        line.position.x += scrollSpeed;
+        if(line.position.x > 1000) line.position.x = -1000;
+    });
+    
+    // Buildings
+    buildingGroup.position.x += scrollSpeed * 0.5;
+    if(buildingGroup.position.x > 800) buildingGroup.position.x = -600;
+    
+    // Clouds
+    cloudGroup.position.x += scrollSpeed * 0.1;
+    if(cloudGroup.position.x > 800) cloudGroup.position.x = -800;
+    
+    // Wheel Rotation
+    const wheelRot = scrollSpeed * 0.05;
+    leftCar.userData.wheels.forEach(w => w.rotation.x += wheelRot);
+    rightCar.userData.wheels.forEach(w => w.rotation.x += wheelRot);
+    
+    // Car Bouncing (Suspension) baseline + bass effect
+    const bounceAmp = 2 + bass * 15;
+    leftCar.position.y = Math.sin(time * 15) * bounceAmp;
+    rightCar.position.y = Math.cos(time * 14) * bounceAmp; // Slight offset phase
+    
+    // Sky Text pulsing
+    const scale = 1 + bass * 0.15;
+    titleMesh.scale.set(scale, scale, 1);
+    
+    // Camera shake
+    camera.position.y = 150 + Math.sin(time * 30) * (bass * 5);
+    camera.position.x = Math.cos(time * 25) * (bass * 3);
+    camera.lookAt(0, 80, 0);
+
+    // Shell Physics update
+    for(let i = shells.length - 1; i >= 0; i--) {
+        const s = shells[i];
+        s.position.x += s.userData.vx;
+        s.position.y += s.userData.vy;
+        s.userData.vy -= 1.5; // Gravity
+        s.rotation.x += 0.2;
+        s.rotation.y += 0.2;
+        
+        if(s.position.y < 5) { // Hit ground
+            scene.remove(s);
+            shells.splice(i, 1);
+        }
+    }
+
+    // Tracer update
+    for(let i = tracers.length - 1; i >= 0; i--) {
+        const t = tracers[i];
+        t.position.add(t.userData.vel);
+        t.userData.life--;
+        if(t.userData.life <= 0) {
+            scene.remove(t);
+            tracers.splice(i, 1);
+        }
+    }
+
+    // Fade Muzzle Flashes
+    leftFlash.material.opacity = Math.max(0, leftFlash.material.opacity - 0.1);
+    rightFlash.material.opacity = Math.max(0, rightFlash.material.opacity - 0.1);
+
+    renderer.render(scene, camera);
+}
+
+function triggerShoot() {
+    // Randomly pick left or right
+    const isLeft = Math.random() > 0.5;
+    
+    if(isLeft) {
+        leftFlash.material.opacity = 1;
+        leftFlash.material.rotation = Math.random() * Math.PI;
+        const startPos = new THREE.Vector3(leftCar.position.x + 100, leftCar.position.y + 130, leftCar.position.z + 50);
+        const targetPos = new THREE.Vector3(rightCar.position.x - 20, rightCar.position.y + 100, rightCar.position.z + 20);
+        spawnShell(startPos.x, startPos.y, startPos.z);
+        spawnTracer(startPos, targetPos);
+    } else {
+        rightFlash.material.opacity = 1;
+        rightFlash.material.rotation = Math.random() * Math.PI;
+        const startPos = new THREE.Vector3(rightCar.position.x - 100, rightCar.position.y + 130, rightCar.position.z + 80);
+        const targetPos = new THREE.Vector3(leftCar.position.x + 20, leftCar.position.y + 100, leftCar.position.z + 20);
+        spawnShell(startPos.x, startPos.y, startPos.z);
+        spawnTracer(startPos, targetPos);
+    }
+}
+
+function spawnShell(x, y, z) {
+    const geo = new THREE.CylinderGeometry(1.5, 1.5, 5, 8);
+    const mat = new THREE.MeshBasicMaterial({ color: 0xFFDD00 });
+    const shell = new THREE.Mesh(geo, mat);
+    
+    shell.position.set(x, y, z);
+    // Random trajectory upward and outward
+    shell.userData = {
+        vx: (Math.random() - 0.5) * 10,
+        vy: 10 + Math.random() * 10
+    };
+    
+    scene.add(shell);
+    shells.push(shell);
+}
+
+function spawnTracer(start, end) {
+    const geo = new THREE.BoxGeometry(80, 2, 2);
+    const mat = new THREE.MeshBasicMaterial({ color: 0xFFFFAA });
+    const tracer = new THREE.Mesh(geo, mat);
+    tracer.position.copy(start);
+    
+    const dir = new THREE.Vector3().subVectors(end, start).normalize();
+    tracer.userData = { vel: dir.multiplyScalar(40), life: 20 };
+    
+    // Align box along direction (BoxGeometry aligns along X by default)
+    const axis = new THREE.Vector3(1, 0, 0); 
+    tracer.quaternion.setFromUnitVectors(axis, dir);
+    
+    scene.add(tracer);
+    tracers.push(tracer);
+}
+
+// Handle Window Resize
+window.addEventListener('resize', () => {
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+});
+
+animate(); // Start render loop idle
 </script>
 
 </body>
