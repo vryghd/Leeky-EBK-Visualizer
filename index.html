@@ -253,6 +253,14 @@
     strokeWeight(3);
     line(45, 30, 45, 80); // Vert pane
     line(20, 55, 70, 55); // Horiz pane
+
+    // Tavern Door
+    fill('#5C3A21'); // Dark brown
+    strokeWeight(3); stroke(OUTLINE);
+    rect(110, 80, 40, 50); // x, y, w, h
+    fill('#F2C14E'); // Gold doorknob
+    noStroke();
+    circle(142, 105, 6);
     
     // Tavern Sign
     push();
@@ -288,6 +296,16 @@
     line(70, 15, 70, 65);
     line(120, 15, 120, 65);
     line(170, 15, 170, 65);
+
+    // Kwik E Mart Doors
+    fill('#87CEEB');
+    strokeWeight(3);
+    rect(100, 65, 40, 45); // Centered roughly (total width 240, center 120)
+    line(120, 65, 120, 110);
+    // door handles
+    strokeWeight(2); stroke(0);
+    line(115, 85, 115, 95);
+    line(125, 85, 125, 95);
 
     // Kwik E Mart Logo
     fill(255);
@@ -463,10 +481,10 @@
     // Generate bullet when firing
     let roadY = height * 0.66;
     if (isFiring && frameCount % 3 === 0) {
-      // Left car shoots right
-      bullets.push({x: width * 0.1 + 100, y: roadY + 25 + carBounce, speed: 25, dir: 1});
-      // Right car shoots left
-      bullets.push({x: width * 0.6 + 60, y: roadY + 45 + carBounce, speed: -25, dir: -1});
+      // Left car shoots right (gun tip is at x + 121, y + 34)
+      bullets.push({x: width * 0.1 + 121, y: roadY + 34 + carBounce, speed: 25, dir: 1});
+      // Right car shoots left (gun tip is at x + 39, y + 54)
+      bullets.push({x: width * 0.6 + 39, y: roadY + 54 + carBounce, speed: -25, dir: -1});
     }
 
     strokeWeight(3);
@@ -493,15 +511,17 @@
     stroke(OUTLINE);
     fill('#FFFF99');
 
-    // Flash for Left Char (now at window height)
+    // Flash for Left Char (gun tip is at x + 121, y + 34)
     push();
-    translate(width * 0.1 + 100, roadY + 25 + carBounce);
+    translate(width * 0.1 + 121, roadY + 34 + carBounce);
+    rotate(radians(-10)); // Match gun angle
     drawStar(0, 0, 8, 20, 5); 
     pop();
 
-    // Flash for Right Char (now at window height)
+    // Flash for Right Char (gun tip is at x + 39, y + 54)
     push();
-    translate(width * 0.6 + 60, roadY + 45 + carBounce);
+    translate(width * 0.6 + 39, roadY + 54 + carBounce);
+    rotate(radians(10)); // Mirrored gun angle
     drawStar(0, 0, 8, 20, 5);
     pop();
   }
@@ -531,16 +551,25 @@
     
     textFont('Permanent Marker');
     textAlign(CENTER, CENTER);
-    textSize(80);
     
-    // Draw Thick Stroke
+    // Draw Thick Stroke for Main Title
+    textSize(80);
     stroke(OUTLINE);
     strokeWeight(15);
     fill('#FED90F'); // Yellow Simpsons color directly
-    
     text("EBK", 0, 0);
     noStroke();
     text("EBK", 0, 0);
+
+    // Draw Subtitle
+    textSize(30);
+    stroke(OUTLINE);
+    strokeWeight(8);
+    fill('#FED90F');
+    text("BY LEEKY", 0, 60);
+    noStroke();
+    text("BY LEEKY", 0, 60);
+    
     pop();
   }
 
