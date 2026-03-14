@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D'OH! Visualizer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Boogaloo&display=swap');
+
+:root {
+--yellow: #FED90F;
+--blue: #1A8FD1;
+--orange: #F77F00;
+--white: #FFF9E6;
+--outline: #1a1a1a;
+--sky: #87CEEB;
+--grass: #3A7A3A;
+--donut-pink: #FF69B4;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: var(--sky);
+font-family: 'Boogaloo', cursive;
+overflow: hidden;
+height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: flex-end;
+position: relative;
+}
+
+/* Animated sky clouds */
+.cloud {
+position: absolute;
+background: white;
+border-radius: 50px;
+opacity: 0.9;
+animation: drift linear infinite;
+}
+.cloud::before, .cloud::after {
+content: '';
+position: absolute;
+background: white;
+border-radius: 50%;
+}
+.cloud:nth-child(1) { width: 120px; height: 40px; top: 8%; left: -150px; animation-duration: 30s; animation-delay: 0s; }
+.cloud:nth-child(1)::before { width: 60px; height: 60px; top: -30px; left: 15px; }
+.cloud:nth-child(1)::after { width: 45px; height: 45px; top: -20px; left: 50px; }
+.cloud:nth-child(2) { width: 90px; height: 30px; top: 15%; left: -120px; animation-duration: 42s; animation-delay: -15s; }
+.cloud:nth-child(2)::before { width: 45px; height: 45px; top: -22px; left: 10px; }
+.cloud:nth-child(2)::after { width: 35px; height: 35px; top: -15px; left: 40px; }
+.cloud:nth-child(3) { width: 150px; height: 45px; top: 5%; left: -180px; animation-duration: 55s; animation-delay: -28s; }
+.cloud:nth-child(3)::before { width: 70px; height: 70px; top: -35px; left: 20px; }
+.cloud:nth-child(3)::after { width: 55px; height: 55px; top: -25px; left: 65px; }
+
+@keyframes drift {
+from { transform: translateX(-200px); }
+to { transform: translateX(110vw); }
+}
+
+/* SUN */
+.sun {
+position: absolute;
+top: 30px;
+right: 60px;
+width: 70px;
+height: 70px;
+background: var(--yellow);
+border-radius: 50%;
+border: 4px solid var(--outline);
+box-shadow: 0 0 0 4px var(--yellow), 0 0 20px 6px rgba(254,217,15,0.6);
+animation: sunPulse 2s ease-in-out infinite;
+z-index: 2;
+}
+.sun::before {
+content: '☺';
+position: absolute;
+font-size: 36px;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -52%);
+}
+@keyframes sunPulse {
+0%,100% { box-shadow: 0 0 0 4px var(--yellow), 0 0 20px 6px rgba(254,217,15,0.6); }
+50% { box-shadow: 0 0 0 4px var(--yellow), 0 0 35px 12px rgba(254,217,15,0.8); }
+}
+
+/* TITLE */
+.title {
+position: absolute;
+top: 18px;
+left: 50%;
+transform: translateX(-50%);
+font-family: 'Permanent Marker', cursive;
+font-size: 2.4rem;
+color: var(--yellow);
+-webkit-text-stroke: 3px var(--outline);
+text-shadow: 4px 4px 0 var(--orange), 6px 6px 0 var(--outline);
+white-space: nowrap;
+z-index: 10;
+letter-spacing: 1px;
+}
+
+/* HOMER bouncing */
+#homer {
+position: absolute;
+bottom: 140px;
+left: 40px;
+font-size: 52px;
+z-index: 20;
+transform-origin: bottom center;
+transition: transform 0.08s ease;
+filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.4));
+cursor: pointer;
+user-select: none;
+}
+#homer:hover::after {
+content: "D’OH!";
+position: absolute;
+bottom: 100%;
+left: 50%;
+transform: translateX(-50%);
+background: white;
+border: 3px solid var(--outline);
+border-radius: 8px;
+padding: 4px 10px;
+font-size: 1rem;
+color: var(--outline);
+white-space: nowrap;
+font-family: 'Permanent Marker', cursive;
+}
+
+/* BART skateboarding */
+#bart {
+position: absolute;
+bottom: 138px;
+right: 30px;
+font-size: 44px;
+z-index: 20;
+filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.4));
+animation: skate 4s linear infinite;
+}
+@keyframes skate {
+0%,100% { transform: translateX(0) rotate(0deg); }
+25% { transform: translateX(-8px) rotate(-3deg); }
+75% { transform: translateX(8px) rotate(3deg); }
+}
+
+/* SPRINGFIELD SKYLINE */
+.skyline {
+position: absolute;
+bottom: 130px;
+left: 0;
+right: 0;
+height: 100px;
+display: flex;
+align-items: flex-end;
+justify-content: center;
+gap: 3px;
+z-index: 5;
+pointer-events: none;
+}
+
+.building {
+background: #2a4a6b;
+border: 2.5px solid var(--outline);
+border-bottom: none;
+position: relative;
+flex-shrink: 0;
+}
+.building::before {
+content: '';
+position: absolute;
+top: -10px;
+left: 50%;
+transform: translateX(-50%);
+width: 14px;
+height: 10px;
+background: #ff4444;
+border: 2px solid var(--outline);
+border-radius: 2px 2px 0 0;
+}
+.building .windows {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 3px;
+padding: 5px;
+height: 100%;
+align-content: start;
+}
+.building .window {
+background: var(--yellow);
+border: 1.5px solid var(--outline);
+aspect-ratio: 1;
+border-radius: 1px;
+}
+.building .window.off { background: #1a2a3a; }
+
+/* Nuclear plant cooling towers */
+.tower {
+width: 55px;
+height: 80px;
+background: #d0d0d0;
+border: 2.5px solid var(--outline);
+border-bottom: none;
+border-radius: 50% 50% 0 0 / 20% 20% 0 0;
+position: relative;
+flex-shrink: 0;
+}
+.tower::after {
+content: '';
+position: absolute;
+top: -8px;
+left: 50%;
+transform: translateX(-50%);
+width: 30px;
+height: 16px;
+border-radius: 50%;
+background: white;
+border: 2px solid var(--outline);
+opacity: 0.8;
+}
+
+/* GRASS GROUND */
+.ground {
+width: 100%;
+height: 130px;
+background: linear-gradient(to bottom, var(--grass) 0%, #2a5a2a 100%);
+border-top: 4px solid var(--outline);
+position: absolute;
+bottom: 0;
+z-index: 8;
+overflow: hidden;
+}
+.ground::before {
+content: '';
+position: absolute;
+top: -8px;
+left: 0;
+right: 0;
+height: 16px;
+background: repeating-linear-gradient(
+90deg,
+transparent 0px,
+transparent 12px,
+var(--grass) 12px,
+var(--grass) 14px
+);
+border-top: 3px solid var(--outline);
+}
+
+/* ROAD */
+.road {
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+height: 55px;
+background: #444;
+border-top: 4px solid #222;
+z-index: 9;
+}
+.road::before {
+content: '';
+position: absolute;
+top: 50%;
+left: 0;
+right: 0;
+height: 5px;
+background: repeating-linear-gradient(
+90deg,
+var(--yellow) 0px,
+var(--yellow) 40px,
+transparent 40px,
+transparent 80px
+);
+transform: translateY(-50%);
+animation: roadScroll 1s linear infinite;
+}
+@keyframes roadScroll {
+from { background-position: 0 0; }
+to { background-position: -80px 0; }
+}
+
+/* VISUALIZER BARS */
+#viz-container {
+position: absolute;
+bottom: 55px;
+left: 0;
+right: 0;
+height: 220px;
+display: flex;
+align-items: flex-end;
+justify-content: center;
+gap: 4px;
+padding: 0 20px;
+z-index: 15;
+pointer-events: none;
+}
+
+.bar {
+flex: 1;
+max-width: 28px;
+min-width: 8px;
+border-radius: 6px 6px 0 0;
+border: 2.5px solid var(--outline);
+border-bottom: none;
+transition: height 0.07s ease-out;
+height: 4px;
+position: relative;
+background: var(--yellow);
+}
+
+/* Donut on top of some bars */
+.bar.donut-bar::after {
+content: '🍩';
+position: absolute;
+top: -26px;
+left: 50%;
+transform: translateX(-50%);
+font-size: 18px;
+opacity: 0;
+transition: opacity 0.1s, top 0.1s;
+}
+.bar.donut-bar.active::after {
+opacity: 1;
+top: -28px;
+}
+
+/* CONTROLS */
+#controls {
+position: absolute;
+bottom: 62px;
+left: 50%;
+transform: translateX(-50%);
+z-index: 30;
+display: flex;
+gap: 12px;
+align-items: center;
+}
+
+.ctrl-btn {
+font-family: 'Permanent Marker', cursive;
+font-size: 1rem;
+padding: 8px 18px;
+background: var(--yellow);
+border: 3px solid var(--outline);
+border-radius: 8px;
+cursor: pointer;
+box-shadow: 3px 3px 0 var(--outline);
+transition: transform 0.1s, box-shadow 0.1s;
+color: var(--outline);
+white-space: nowrap;
+}
+.ctrl-btn:active {
+transform: translate(2px, 2px);
+box-shadow: 1px 1px 0 var(--outline);
+}
+.ctrl-btn:hover { background: var(--orange); }
+
+/* FILE LABEL */
+#file-label {
+font-family: 'Boogaloo', cursive;
+font-size: 0.85rem;
+color: white;
+-webkit-text-stroke: 1px var(--outline);
+padding: 6px 12px;
+background: var(--blue);
+border: 3px solid var(--outline);
+border-radius: 8px;
+cursor: pointer;
+box-shadow: 3px 3px 0 var(--outline);
+transition: transform 0.1s;
+}
+#file-label:hover { background: #1670a8; transform: translateY(-2px); }
+#file-input { display: none; }
+
+/* STATUS */
+#status {
+position: absolute;
+top: 90px;
+left: 50%;
+transform: translateX(-50%);
+font-family: 'Permanent Marker', cursive;
+font-size: 1.1rem;
+color: var(--outline);
+background: var(--yellow);
+border: 3px solid var(--outline);
+padding: 4px 14px;
+border-radius: 20px;
+white-space: nowrap;
+z-index: 20;
+box-shadow: 2px 2px 0 var(--outline);
+}
+
+/* Doughnut meter in corner */
+#donut-meter {
+position: absolute;
+top: 30px;
+left: 30px;
+font-size: 2.5rem;
+z-index: 20;
+filter: drop-shadow(2px 2px 0 var(--outline));
+transition: transform 0.1s;
+}
+
+/* TV scanlines overlay */
+body::after {
+content: '';
+position: fixed;
+inset: 0;
+background: repeating-linear-gradient(
+0deg,
+transparent,
+transparent 3px,
+rgba(0,0,0,0.04) 3px,
+rgba(0,0,0,0.04) 4px
+);
+pointer-events: none;
+z-index: 100;
+}
+</style>
+
+</head>
+<body>
+
+<!-- SKY ELEMENTS -->
+
+<div class="cloud"></div>
+<div class="cloud"></div>
+<div class="cloud"></div>
+<div class="sun"></div>
+<div class="title">D'OH! VISUALIZER</div>
+<div id="donut-meter">🍩</div>
+<div id="status">Click PLAY to start!</div>
+
+<!-- SPRINGFIELD SKYLINE -->
+
+<div class="skyline" id="skyline"></div>
+
+<!-- VISUALIZER BARS -->
+
+<div id="viz-container"></div>
+
+<!-- CHARACTERS -->
+
+<div id="homer" title="D'OH!">🧔</div>
+<div id="bart">🛹</div>
+
+<!-- GROUND / ROAD -->
+
+<div class="ground"></div>
+<div class="road"></div>
+
+<!-- CONTROLS -->
+
+<div id="controls">
+  <button class="ctrl-btn" id="playBtn">▶ PLAY</button>
+  <label id="file-label" for="file-input">📂 Load Audio</label>
+  <input type="file" id="file-input" accept="audio/*">
+</div>
+
+<script>
+  // Build Springfield skyline
+  const skyline = document.getElementById('skyline');
+  const buildings = [
+    { w: 40, h: 60, wins: 4 }, { w: 50, h: 90, wins: 6 },
+    { w: 35, h: 50, wins: 3 },
+    // Cooling towers
+    null, null,
+    { w: 55, h: 85, wins: 8 }, { w: 38, h: 65, wins: 4 },
+    { w: 45, h: 75, wins: 6 }, { w: 30, h: 45, wins: 2 },
+    { w: 60, h: 95, wins: 9 }, { w: 42, h: 70, wins: 5 },
+    { w: 35, h: 55, wins: 3 },
+  ];
+
+  buildings.forEach(b => {
+    if (!b) {
+      const t = document.createElement('div');
+      t.className = 'tower';
+      skyline.appendChild(t);
+      return;
+    }
+    const el = document.createElement('div');
+    el.className = 'building';
+    el.style.width = b.w + 'px';
+    el.style.height = b.h + 'px';
+    const wins = document.createElement('div');
+    wins.className = 'windows';
+    for (let i = 0; i < b.wins; i++) {
+      const w = document.createElement('div');
+      w.className = 'window' + (Math.random() > 0.6 ? ' off' : '');
+      wins.appendChild(w);
+    }
+    el.appendChild(wins);
+    skyline.appendChild(el);
+  });
+
+  // Build visualizer bars
+  const vizContainer = document.getElementById('viz-container');
+  const BAR_COUNT = 48;
+  const bars = [];
+  const donutPositions = new Set([4, 10, 18, 26, 34, 42]);
+
+  for (let i = 0; i < BAR_COUNT; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'bar' + (donutPositions.has(i) ? ' donut-bar' : '');
+    // Color gradient: yellow -> orange -> red based on position
+    const t = i / BAR_COUNT;
+    if (t < 0.33) bar.style.background = '#FED90F';
+    else if (t < 0.66) bar.style.background = '#F77F00';
+    else bar.style.background = '#FF4400';
+    vizContainer.appendChild(bar);
+    bars.push(bar);
+  }
+
+  // Audio setup
+  let audioCtx, analyser, source, audioBuffer, isPlaying = false;
+  let animFrame;
+
+  const playBtn = document.getElementById('playBtn');
+  const statusEl = document.getElementById('status');
+  const homer = document.getElementById('homer');
+  const donutMeter = document.getElementById('donut-meter');
+
+  // Pre-load the uploaded audio
+  async function loadAudioFromUrl(url) {
+    statusEl.textContent = 'Loading...';
+    try {
+      const res = await fetch(url);
+      const arrayBuf = await res.arrayBuffer();
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioBuffer = await audioCtx.decodeAudioData(arrayBuf);
+      statusEl.textContent = '🎵 Ready — Hit PLAY!';
+      playBtn.textContent = '▶ PLAY';
+    } catch(e) {
+      statusEl.textContent = 'Load audio or use file button';
+    }
+  }
+
+  // Try loading the pre-uploaded file
+  loadAudioFromUrl('ebk.m4a');
+
+  // File input
+  document.getElementById('file-input').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (isPlaying) stopAudio();
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    statusEl.textContent = 'Loading...';
+    const arrayBuf = await file.arrayBuffer();
+    audioBuffer = await audioCtx.decodeAudioData(arrayBuf);
+    statusEl.textContent = '🎵 Ready — Hit PLAY!';
+    playBtn.textContent = '▶ PLAY';
+  });
+
+  playBtn.addEventListener('click', () => {
+    if (!audioBuffer) { statusEl.textContent = "No audio loaded!"; return; }
+    if (isPlaying) { stopAudio(); return; }
+    playAudio();
+  });
+
+  function playAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 128;
+    analyser.smoothingTimeConstant = 0.78;
+    source = audioCtx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    source.start();
+    isPlaying = true;
+    playBtn.textContent = '⏹ STOP';
+    statusEl.textContent = "🎵 D'OH yeah!";
+    source.onended = () => { isPlaying = false; playBtn.textContent = '▶ PLAY'; statusEl.textContent = '🎵 Finished!'; cancelAnimationFrame(animFrame); resetBars(); };
+    draw();
+  }
+
+  function stopAudio() {
+    if (source) { try { source.stop(); } catch(e){} }
+    isPlaying = false;
+    playBtn.textContent = '▶ PLAY';
+    statusEl.textContent = "Stopped — D'OH!";
+    cancelAnimationFrame(animFrame);
+    resetBars();
+  }
+
+  function resetBars() {
+    bars.forEach(b => { b.style.height = '4px'; b.classList.remove('active'); });
+    homer.style.transform = '';
+    donutMeter.style.transform = '';
+  }
+
+  const dataArr = new Uint8Array(64);
+  let frameCount = 0;
+
+  function draw() {
+    animFrame = requestAnimationFrame(draw);
+    analyser.getByteFrequencyData(dataArr);
+    frameCount++;
+
+    const containerH = 220;
+    let avgBass = 0;
+    let avgVol = 0;
+
+    for (let i = 0; i < BAR_COUNT; i++) {
+      const val = dataArr[Math.floor(i * dataArr.length / BAR_COUNT)];
+      const h = Math.max(4, (val / 255) * containerH);
+      bars[i].style.height = h + 'px';
+      if (donutPositions.has(i)) {
+        bars[i].classList.toggle('active', h > 60);
+      }
+      avgVol += val;
+    }
+
+    // Bass (first ~8 bars)
+    for (let i = 0; i < 8; i++) avgBass += dataArr[i];
+    avgBass /= 8;
+    avgVol /= BAR_COUNT;
+
+    // Homer bobs to bass
+    const bassNorm = avgBass / 255;
+    const scaleY = 1 + bassNorm * 0.25;
+    homer.style.transform = `scaleY(${scaleY}) rotate(${Math.sin(frameCount * 0.15) * bassNorm * 12}deg)`;
+
+    // Donut spins to volume
+    const spin = avgVol / 255;
+    donutMeter.style.transform = `scale(${1 + spin * 0.5}) rotate(${frameCount * spin * 8}deg)`;
+
+    // Flash window lights occasionally
+    if (frameCount % 20 === 0 && avgVol > 80) {
+      const allWins = document.querySelectorAll('.window');
+      const w = allWins[Math.floor(Math.random() * allWins.length)];
+      w.classList.toggle('off');
+    }
+  }
+
+  // Homer click = D'OH
+  homer.addEventListener('click', () => {
+    statusEl.textContent = "D'OH!";
+    homer.style.transform = 'scale(1.3) rotate(-10deg)';
+    setTimeout(() => { homer.style.transform = ''; }, 300);
+  });
+</script>
+
+</body>
+</html>
