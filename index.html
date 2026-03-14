@@ -32,7 +32,7 @@
   
   // -- COLORS --
   const SIMPSONS_BLUE = '#7092BE';
-  const SKIN_YELLOW = '#FED90F';
+  const SKIN_BROWN = '#8D5524'; // Angry brown characters
   const OUTLINE = '#000000';
   
   // -- ANIMATION STATE --
@@ -44,6 +44,7 @@
   // -- AUDIO SYNC --
   let isFiring = false;
   let flashTimer = 0;
+  let bullets = [];
 
   function setup() {
     let canvasWidth = (windowHeight * (9/16)) * 0.95; 
@@ -136,6 +137,9 @@
     // DRAW SCENE LAYERS
     drawClouds();
     
+    // Simple EBK text entirely behind everything but clouds
+    drawText(level);
+
     push();
     translate(-bldgOffset, 0); // pan buildings left
     drawBackgroundScene();
@@ -145,16 +149,15 @@
 
     drawRoad();
     
-    drawCharacters();
-    drawCars();
+    drawCarsWithCharacters();
     
     if (isFiring) {
       drawMuzzleFlashes();
     }
+    drawBullets();
     
     pop(); // End Global Shake
     
-    drawText(level);
     drawCRT();
     
     // Border
@@ -326,17 +329,17 @@
     pop();
   }
 
-  function drawCars() {
+  function drawCarsWithCharacters() {
     let roadY = height * 0.66;
     
-    // Purple Sedan
-    drawDetailedCar(width * 0.1, roadY + 40 + carBounce, '#9b59b6', false);
+    // Purple Sedan (Left)
+    drawDetailedCarWithChar(width * 0.1, roadY + 40 + carBounce, '#9b59b6', false);
     
-    // Green Sedan (Mirrored visually)
-    drawDetailedCar(width * 0.6, roadY + 60 + carBounce, '#27ae60', true);
+    // Green Sedan (Right - Mirrored visually)
+    drawDetailedCarWithChar(width * 0.6, roadY + 60 + carBounce, '#27ae60', true);
   }
 
-  function drawDetailedCar(x, y, colorCode, isMirrored) {
+  function drawDetailedCarWithChar(x, y, colorCode, isMirrored) {
     push();
     translate(x, y);
     if (isMirrored) {
@@ -351,9 +354,66 @@
     strokeWeight(4); stroke(OUTLINE);
     fill(colorCode);
     
-    // Cabin
+    // Cabin (Back panel)
     rect(30, -35, 80, 40, 30, 30, 0, 0); 
-    // Body
+    
+    // -- DRAW CHARACTER INSIDE WINDOW --
+    push();
+    // Position character so head is in window
+    translate(55, -5); 
+    strokeWeight(3);
+    stroke(OUTLINE);
+    
+    // Torso (cut off by door)
+    line(0, 0, 0, 10); 
+    
+    // Arm Holding Gun sticking out of window
+    line(0, 5, 45, 10);
+    fill(SKIN_BROWN); circle(45, 10, 12); // Hand
+
+    // Head (Simpsons shape, Brown skin)
+    fill(SKIN_BROWN);
+    beginShape();
+    vertex(-10, 15);
+    bezierVertex(-20, -5, -15, -20, 0, -20);
+    bezierVertex(15, -20, 20, -5, 10, 15);
+    endShape(CLOSE);
+    
+    // Angry Eyebrows + Eyes
+    strokeWeight(3);
+    fill(255); circle(-5, -5, 12); circle(5, -5, 12); // Eyes
+    fill(0); circle(-5, -5, 4); circle(5, -5, 4); // Pupils
+    
+    // Angry Brow Lines
+    strokeWeight(4); stroke(0);
+    line(-12, -15, -2, -8); // Left brow angling down
+    line(12, -15, 2, -8);   // Right brow angling down
+
+    // Nose
+    noFill(); stroke(OUTLINE); strokeWeight(2);
+    arc(10, 0, 8, 8, -HALF_PI, HALF_PI);
+    
+    // Angry Mouth
+    line(2, 8, 10, 5);
+
+    // Pistol
+    push();
+    fill('#222'); translate(48, 8); rotate(radians(-10));
+    strokeWeight(2);
+    // Gun Barrel & Handle
+    beginShape();
+    vertex(0,0); vertex(20,0); vertex(20,-6); vertex(3,-6); 
+    vertex(3,-14); vertex(-4,-14); vertex(-4, 0); 
+    endShape(CLOSE);
+    // Detail
+    strokeWeight(1); stroke(100); line(5, -3, 15, -3);
+    pop();
+    
+    pop();
+    // -- END CHARACTER --
+
+    // Body (Covers the character's lower half)
+    strokeWeight(4); stroke(OUTLINE); fill(colorCode);
     rect(0, 0, 160, 50, 15, 30, 10, 10);
     
     // Door Lines & Details
@@ -362,11 +422,14 @@
     line(110, 0, 110, 40); // Back door seam
     fill(0); circle(60, 15, 6); circle(100, 15, 6); // Door handles
 
-    // Windows & Reflection
-    strokeWeight(4); fill('#87CEEB');
+    // Windows frame outline
+    noFill(); strokeWeight(4); stroke(OUTLINE);
     rect(40, -28, 60, 30, 15, 15, 0, 0);
-    line(70, -28, 70, 2); // Split
-    // Glass reflection
+    
+    // Window pillars and split
+    line(70, -28, 70, 2); 
+    
+    // Glass reflection (drawn over character)
     strokeWeight(2); stroke(255, 150);
     line(45, -20, 55, -20); line(48, -15, 52, -15);
     line(75, -20, 85, -20);
@@ -396,86 +459,50 @@
     pop();
   }
 
-  function drawCharacters() {
+  function drawBullets() {
+    // Generate bullet when firing
     let roadY = height * 0.66;
-    
-    // Left Character
-    drawDetailedChar(width * 0.1 - 10, roadY + 20 + carBounce, false);
-    // Right Character
-    drawDetailedChar(width * 0.6 + 180, roadY + 40 + carBounce, true);
+    if (isFiring && frameCount % 3 === 0) {
+      // Left car shoots right
+      bullets.push({x: width * 0.1 + 100, y: roadY + 25 + carBounce, speed: 25, dir: 1});
+      // Right car shoots left
+      bullets.push({x: width * 0.6 + 60, y: roadY + 45 + carBounce, speed: -25, dir: -1});
+    }
+
+    strokeWeight(3);
+    stroke('#FFFFCC');
+    for (let i = bullets.length - 1; i >= 0; i--) {
+      let b = bullets[i];
+      // Draw flying bullet line
+      line(b.x, b.y, b.x + (20 * b.dir), b.y);
+      b.x += b.speed;
+      
+      // Remove offscreen
+      if (b.x > width + 100 || b.x < -100) {
+        bullets.splice(i, 1);
+      }
+    }
   }
 
-  function drawDetailedChar(x, y, isMirrored) {
-    push();
-    translate(x, y);
-    if(isMirrored) scale(-1, 1);
 
-    strokeWeight(4);
-    stroke(OUTLINE);
-    
-    // Stick Body/Legs
-    line(0, 0, 0, 40); // Torso
-    line(0, 40, -15, 70); // Leg L
-    line(0, 40, 15, 70); // Leg R
-    
-    // Arm Holding Gun
-    line(0, 15, 45, 0);
-    fill(SKIN_YELLOW); circle(45, 0, 12); // Hand
-
-    // Head (Simpsons elongated shape)
-    fill(SKIN_YELLOW);
-    beginShape();
-    vertex(-10, 15);
-    bezierVertex(-20, -5, -15, -20, 0, -20);
-    bezierVertex(15, -20, 20, -5, 10, 15);
-    endShape(CLOSE);
-    
-    // Mouth
-    noFill(); stroke(OUTLINE); strokeWeight(2);
-    arc(5, 5, 10, 10, 0, PI);
-
-    // Eyes
-    strokeWeight(3);
-    fill(255); circle(-5, -5, 12); circle(5, -5, 12); // Slightly larger bulbous eyes
-    fill(0); circle(-5, -5, 4); circle(5, -5, 4); // Pupils
-    
-    // Nose
-    noFill(); stroke(OUTLINE); strokeWeight(2);
-    arc(10, 0, 8, 8, -HALF_PI, HALF_PI);
-
-    // Pistol
-    push();
-    fill('#222'); translate(48, -2); rotate(radians(-15));
-    strokeWeight(3);
-    // Gun Barrel & Handle
-    beginShape();
-    vertex(0,0); vertex(20,0); vertex(20,-6); vertex(3,-6); 
-    vertex(3,-14); vertex(-4,-14); vertex(-4, 0); 
-    endShape(CLOSE);
-    // Detail
-    strokeWeight(1); stroke(100); line(5, -3, 15, -3);
-    pop();
-    
-    pop();
-  }
 
   function drawMuzzleFlashes() {
     let roadY = height * 0.66;
     
     strokeWeight(3);
     stroke(OUTLINE);
-    fill(SKIN_YELLOW);
+    fill('#FFFF99');
 
-    // Flash for Left Char
+    // Flash for Left Char (now at window height)
     push();
-    translate(width * 0.1 + 45, roadY + 20 + carBounce);
-    drawStar(0, -6, 10, 25, 5); 
+    translate(width * 0.1 + 100, roadY + 25 + carBounce);
+    drawStar(0, 0, 8, 20, 5); 
     pop();
 
-    // Flash for Right Char
+    // Flash for Right Char (now at window height)
     push();
-    translate(width * 0.6 + 120, roadY + 40 + carBounce);
-    drawStar(0, -6, 10, 25, 5);
+    translate(width * 0.6 + 60, roadY + 45 + carBounce);
+    drawStar(0, 0, 8, 20, 5);
     pop();
   }
 
@@ -509,13 +536,11 @@
     // Draw Thick Stroke
     stroke(OUTLINE);
     strokeWeight(15);
-    fill('#F77F00'); // Orange fallback if gradient fail
+    fill('#FED90F'); // Yellow Simpsons color directly
     
-    // Simple Gradient fill simulation by drawing twice slightly offset
     text("EBK", 0, 0);
     noStroke();
-    fill(SKIN_YELLOW);
-    text("EBK", 0, -4); // Yellow inner top
+    text("EBK", 0, 0);
     pop();
   }
 
