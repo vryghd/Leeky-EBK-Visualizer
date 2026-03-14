@@ -487,7 +487,7 @@ async function initAudio() {
     dataArray = new Uint8Array(analyser.frequencyBinCount);
     
     try {
-        const response = await fetch('ebk.m4a');
+        const response = await fetch('Leeky%20EBK.m4a');
         const arrayBuffer = await response.arrayBuffer();
         const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
         
