@@ -169,7 +169,7 @@ body {
 
 /* ARMS AND GUNS */
 .arm {
-  position: absolute; top: -5px; left: 80px; 
+  position: absolute; top: 0px; left: 80px; 
   width: 35px; height: 14px; background: var(--skin-tone);
   border: 3px solid var(--outline); border-radius: 7px;
   z-index: 10; transform: rotate(-5deg);
@@ -249,8 +249,8 @@ body {
         </div>
       </div>
     </div>
-    <div class="arm"><div class="gun"></div></div>
-    <div id="flash-right" class="muzzle-flash"></div>
+    <div class="arm" style="transform: rotate(185deg); left: 70px;"><div class="gun" style="transform: scaleY(-1);"></div></div>
+    <div id="flash-right" class="muzzle-flash" style="transform: scaleX(-1); left: 10px;"></div>
   </div>
 </div>
 
