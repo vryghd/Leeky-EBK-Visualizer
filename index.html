@@ -164,6 +164,15 @@
     rect(0, 0, width, height);
   }
 
+  function setGradient(x, y, w, h, c1, c2) {
+    noFill();
+    for (let i = y; i <= y + h; i++) {
+      let inter = map(i, y, y + h, 0, 1);
+      let c = lerpColor(c1, c2, inter);
+      stroke(c);
+      line(x, i, x + w, i);
+    }
+  }
   function windowResized() {
     let canvasWidth = (windowHeight * (9/16)) * 0.95; 
     let canvasHeight = windowHeight * 0.95;
@@ -390,62 +399,63 @@
   function drawCharacters() {
     let roadY = height * 0.66;
     
+    // Left Character
+    drawDetailedChar(width * 0.1 - 10, roadY + 20 + carBounce, false);
+    // Right Character
+    drawDetailedChar(width * 0.6 + 180, roadY + 40 + carBounce, true);
+  }
+
+  function drawDetailedChar(x, y, isMirrored) {
+    push();
+    translate(x, y);
+    if(isMirrored) scale(-1, 1);
+
     strokeWeight(4);
     stroke(OUTLINE);
     
-    // Left Character
-    push();
-    // Positioned behind trunk of purple car
-    translate(width * 0.1 - 10, roadY + 20 + carBounce); 
-    
     // Stick Body/Legs
     line(0, 0, 0, 40); // Torso
     line(0, 40, -15, 70); // Leg L
     line(0, 40, 15, 70); // Leg R
     
-    // Head (Yellow fill)
-    fill(SKIN_YELLOW);
-    circle(0, 0, 30);
-    // Eyes
-    fill(255); circle(-5, -5, 10); circle(5, -5, 10);
-    fill(0); circle(-5, -5, 3); circle(5, -5, 3);
-
-    // Aiming Arm
+    // Arm Holding Gun
     line(0, 15, 45, 0);
-    
-    // Pistol (Black)
-    push();
-    fill(0); translate(45, 0); rotate(radians(-15));
-    beginShape();
-    vertex(0,0); vertex(15,0); vertex(15,-6); vertex(3,-6); vertex(3,-10); vertex(-3,-10); vertex(-3, -2); endShape(CLOSE);
-    pop();
-    pop();
+    fill(SKIN_YELLOW); circle(45, 0, 12); // Hand
 
-    // Right Character (Mirrored, behind green car hood)
-    push();
-    translate(width * 0.6 + 180, roadY + 40 + carBounce);
-    scale(-1, 1); // Face left
-    
-    // Stick Body/Legs
-    line(0, 0, 0, 40); // Torso
-    line(0, 40, -15, 70); // Leg L
-    line(0, 40, 15, 70); // Leg R
-    
-    // Head
+    // Head (Simpsons elongated shape)
     fill(SKIN_YELLOW);
-    circle(0, 0, 30);
-    fill(255); circle(-5, -5, 10); circle(5, -5, 10);
-    fill(0); circle(-5, -5, 3); circle(5, -5, 3);
-
-    // Aiming Arm
-    line(0, 15, 45, -5);
+    beginShape();
+    vertex(-10, 15);
+    bezierVertex(-20, -5, -15, -20, 0, -20);
+    bezierVertex(15, -20, 20, -5, 10, 15);
+    endShape(CLOSE);
     
+    // Mouth
+    noFill(); stroke(OUTLINE); strokeWeight(2);
+    arc(5, 5, 10, 10, 0, PI);
+
+    // Eyes
+    strokeWeight(3);
+    fill(255); circle(-5, -5, 12); circle(5, -5, 12); // Slightly larger bulbous eyes
+    fill(0); circle(-5, -5, 4); circle(5, -5, 4); // Pupils
+    
+    // Nose
+    noFill(); stroke(OUTLINE); strokeWeight(2);
+    arc(10, 0, 8, 8, -HALF_PI, HALF_PI);
+
     // Pistol
     push();
-    fill(0); translate(45, -5); rotate(radians(-10));
+    fill('#222'); translate(48, -2); rotate(radians(-15));
+    strokeWeight(3);
+    // Gun Barrel & Handle
     beginShape();
-    vertex(0,0); vertex(15,0); vertex(15,-6); vertex(3,-6); vertex(3,-10); vertex(-3,-10); vertex(-3, -2); endShape(CLOSE);
+    vertex(0,0); vertex(20,0); vertex(20,-6); vertex(3,-6); 
+    vertex(3,-14); vertex(-4,-14); vertex(-4, 0); 
+    endShape(CLOSE);
+    // Detail
+    strokeWeight(1); stroke(100); line(5, -3, 15, -3);
     pop();
+    
     pop();
   }
 
@@ -521,16 +531,6 @@
     pop();
   }
 
-  // Handle window resizing cleanly while maintaining ratio
-  function windowResized() {
-    let canvasWidth = (windowHeight * (9/16)) * 0.95; 
-    let canvasHeight = windowHeight * 0.95;
-    if (canvasHeight < 540) {
-      canvasHeight = 540;
-      canvasWidth = 432;
-    }
-    resizeCanvas(canvasWidth, canvasHeight);
-  }
 </script>
 </body>
 </html>
